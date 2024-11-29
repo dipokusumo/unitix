@@ -3,8 +3,7 @@ const cors = require('cors');
 const connectDB = require('./config/database');
 const { port } = require('./config/env');
 const errorHandler = require('./middleware/errorHandler');
-const userRoutes = require('./routes/userRoutes');
-const eventRoutes = require('./routes/eventRoutes');
+const routes = require('./routes')
 const morgan = require('morgan')
 
 const app = express();
@@ -16,9 +15,7 @@ app.use(morgan('dev'))
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/users', userRoutes);
-app.use('/api/events', eventRoutes);
-
+app.use('/api', routes);
 
 app.use(errorHandler);
 

@@ -1,8 +1,12 @@
 const express = require('express');
 
 const eventRouter = require('./eventRoutes');
+const userRouter = require('./userRoutes');
 
-const router = express.Router();
+const routes = express.Router();
 
 //kumpulkan semua routes disini
-router.use('/events', eventRouter);
+routes.use(userRouter);
+routes.use(eventRouter);
+
+module.exports = routes;

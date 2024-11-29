@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
-const User = require('./User');
-const EventSchema = require('./Event');
+const userSchema = require('./User');
+const eventSchema = require('./Event');
 
 module.exports = {
-    User,
-    Event: mongoose.model('Event', EventSchema)
+    User: mongoose.model('User', userSchema),
+    Event: mongoose.model('Event', eventSchema)
 }

@@ -1,7 +1,7 @@
 const DB = require("../models");
 const ResponseAPI = require("../utils/response");
 
-class EventController {
+class eventController {
   static async getAll(req, res) {
     try {
       const event = await DB.Event.find();
@@ -62,4 +62,4 @@ class EventController {
   }
 }
 
-module.exports = EventController;
+module.exports = eventController;
