@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const DB = require('../models')
 const ResponseAPI = require('../utils/response');
 const sendMail = require('../utils/mailer');
 const crypto = require('crypto');
@@ -14,7 +14,7 @@ const userController = {
         try {
             const { name, email, password, confirmPassword } = req.body;
 
-            const existingUser = await User.findOne({ email });
+            const existingUser = await DB.User.findOne({ email });
             if (existingUser) {
                 return ResponseAPI.error(res, 'Email already exists', 409);
             }
@@ -43,7 +43,7 @@ const userController = {
         try {
             const { email } = req.body;
     
-            const user = await User.findOne({ email });
+            const user = await DB.User.findOne({ email });
             if (!user) {
                 return ResponseAPI.error(res, 'Email not found', 404);
             }
@@ -72,7 +72,7 @@ const userController = {
         try {
             const { email, password } = req.body;
 
-            const user = await User.findOne({ email });
+            const user = await DB.User.findOne({ email });
             if (!user) {
                 return ResponseAPI.error(res, 'Invalid email or password', 401);
             }
