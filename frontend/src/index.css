@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* Import Montserrat font */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+
+/* Apply Montserrat font to the whole page */
+body {
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Optionally, apply to specific elements */
+h1, h2, h3, p, button {
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* TailwindCSS can be customized further, but default utility classes will still work */
+
+  
