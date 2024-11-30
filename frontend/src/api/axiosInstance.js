@@ -1,45 +1,30 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8080/'
-})
+    baseURL: import.meta.env.VITE_API_BASE_URL,
+});
 
-// Add a request interceptor
-axiosInstance.interceptors.request.use(function (config) {
-    // Do something before request is sent
+console.log('Base URL:', import.meta.env.VITE_API_BASE_URL);
 
-    const token = localStorage.getItem('token')
+axiosInstance.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
 
-    if(token) {
-        config.headers['Authorization'] = `Bearer ${token}`
+axiosInstance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+        }
+        return Promise.reject(error);
     }
+);
 
-    return config;
-  }, function (error) {
-    // Do something with request error
-    return Promise.reject(error);
-  });
-
-// Add a response interceptor
-axiosInstance.interceptors.response.use(function (response) {
-    // Any status code that lie within the range of 2xx cause this function to trigger
-    // Do something with response data
-
-    return response;
-  }, function (error) {
-    // Any status codes that falls outside the range of 2xx cause this function to trigger
-    // Do something with response error
-
-    if(error.response && error.response.status === 401) {
-        localStorage.removeItem('token')
-    }
-
-
-    return Promise.reject(error);
-  });
-
-//? FE -> (interceptor request) -> REQUEST -> BE
-//? BE -> RESPONSE -> (interceptor response) -> FE
-
-
-export default axiosInstance
+export default axiosInstance;

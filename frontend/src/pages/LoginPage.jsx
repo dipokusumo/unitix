@@ -16,7 +16,7 @@ function LoginPage() {
       await userApi.login(email, password);
       
       // Navigate to a different route after successful login
-      navigate('/'); // Update to the correct path you want
+      navigate('/main'); // Update to the correct path you want
       setInputEmail('');
       setInputPassword('');
       
