@@ -4,7 +4,8 @@ import './index.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from './App.jsx';
 import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/Dashboard';
+import DashboardPage from './pages/AdminHome';
+import MainPage from "./pages/CustomerDashboard"
 
 // Mendefinisikan router
 const router = createBrowserRouter([
@@ -17,8 +18,12 @@ const router = createBrowserRouter([
     element: <LoginPage />, // Halaman login
   },
   {
-    path: "/main",
+    path: "/HomeAdmin",
     element: <DashboardPage />, // Halaman login
+  },
+  {
+    path: "/HomeCustomer",
+    element: <MainPage />, // Halaman login
   },
 ]);
 
