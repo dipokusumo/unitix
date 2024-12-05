@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const DB = require('../models')
+const DB = require('../models');
 const ResponseAPI = require('../utils/response');
 const sendMail = require('../utils/mailer');
 const crypto = require('crypto');
@@ -16,16 +16,16 @@ const userController = {
 
             const existingUser = await DB.User.findOne({ email });
             if (existingUser) {
-                return ResponseAPI.error(res, 'Email already exists', 409);
+                return ResponseAPI.conflict(res, 'Email already exists');
             }
 
             if (password !== confirmPassword) {
-                return ResponseAPI.error(res, 'Passwords do not match', 400);
+                return ResponseAPI.badRequest(res, 'Passwords do not match');
             }
 
-            const user = await User.create({ name, email, password });
+            const user = await DB.User.create({ name, email, password });
 
-            ResponseAPI.success(res, {
+            return ResponseAPI.created(res, {
                 user: {
                     id: user._id,
                     name: user.name,
@@ -33,9 +33,9 @@ const userController = {
                     role: user.role,
                     photo_url: user.photo_url
                 }
-            }, 'Registration successful', 201);
+            }, 'Registration successful');
         } catch (error) {
-            ResponseAPI.serverError(res, error);
+            return ResponseAPI.serverError(res, error);
         }
     },
 
@@ -45,7 +45,7 @@ const userController = {
     
             const user = await DB.User.findOne({ email });
             if (!user) {
-                return ResponseAPI.error(res, 'Email not found', 404);
+                return ResponseAPI.notFound(res, 'Email not found');
             }
     
             const newPassword = crypto.randomBytes(4).toString('hex');
@@ -62,9 +62,9 @@ const userController = {
     
             await sendMail(user.email, 'Password Reset Successful', emailContent);
     
-            ResponseAPI.success(res, null, 'New password has been sent to your email');
+            return ResponseAPI.success(res, null, 'New password has been sent to your email');
         } catch (error) {
-            ResponseAPI.serverError(res, error);
+            return ResponseAPI.serverError(res, error);
         }
     },
 
@@ -84,7 +84,7 @@ const userController = {
 
             const token = generateToken(user._id);
 
-            ResponseAPI.success(res, {
+            return ResponseAPI.success(res, {
                 token,
                 user: {
                     id: user._id,
@@ -93,11 +93,115 @@ const userController = {
                     role: user.role,
                     photo_url: user.photo_url
                 }
-            });
+            }, 'Login successful');
         } catch (error) {
-            ResponseAPI.serverError(res, error);
+            return ResponseAPI.serverError(res, error);
         }
-    }
+    },
+
+    async editProfile(req, res) {
+        try {
+            const { name, photoUrl } = req.body;
+            const userId = req.user.id;
+
+            const user = await DB.User.findById(userId);
+            if (!user) {
+                return ResponseAPI.notFound(res, 'User not found');
+            }
+
+            if (name) user.name = name;
+            if (photoUrl) user.photo_url = photoUrl;
+
+            await user.save();
+
+            return ResponseAPI.success(res, {
+                user: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    photo_url: user.photo_url
+                }
+            }, 'Profile updated successfully');
+        } catch (error) {
+            return ResponseAPI.serverError(res, error);
+        }
+    },
+
+    async changePassword(req, res) {
+        try {
+            const { oldPassword, newPassword, confirmNewPassword } = req.body;
+            const userId = req.user.id;
+
+            const user = await DB.User.findById(userId);
+            if (!user) {
+                return ResponseAPI.notFound(res, 'User not found');
+            }
+
+            const isOldPasswordValid = await user.comparePassword(oldPassword);
+            if (!isOldPasswordValid) {
+                return ResponseAPI.error(res, 'Old password is incorrect', 401);
+            }
+
+            if (newPassword !== confirmNewPassword) {
+                return ResponseAPI.badRequest(res, 'New passwords do not match');
+            }
+
+            user.password = newPassword;
+            await user.save();
+
+            return ResponseAPI.success(res, null, 'Password changed successfully');
+        } catch (error) {
+            return ResponseAPI.serverError(res, error);
+        }
+    },
+
+    async getAllUsers(req, res) {
+        try {
+          const users = await DB.User.aggregate([
+            {
+              $lookup: {
+                from: 'transactions',
+                localField: '_id',
+                foreignField: 'customerId',
+                as: 'transactions'
+              }
+            },
+            {
+              $unwind: {
+                path: '$transactions',
+                preserveNullAndEmptyArrays: true
+              }
+            },
+            {
+              $match: {
+                'transactions.paymentStatus': 'completed'
+              }
+            },
+            {
+              $group: {
+                _id: '$_id',
+                name: { $first: '$name' },
+                email: { $first: '$email' },
+                transactionCount: { $sum: 1 }
+              }
+            },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                email: 1,
+                transactionCount: 1
+              }
+            }
+          ]);
+      
+          return ResponseAPI.success(res, users, 'Users with completed transactions');
+        } catch (error) {
+          console.error('Error getting users with completed transactions:', error);
+          return ResponseAPI.serverError(res, error.message || 'Error retrieving users');
+        }
+      },
 };
 
 module.exports = userController;

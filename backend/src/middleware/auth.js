@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/env');
-const User = require('../models/User');
+const DB = require('../models');
 const ResponseAPI = require('../utils/response');
 
 const auth = async (req, res, next) => {
@@ -12,7 +12,7 @@ const auth = async (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, jwtSecret);
-        const user = await User.findById(decoded.id);
+        const user = await DB.User.findById(decoded.id);
 
         if (!user) {
             return ResponseAPI.unauthorized(res, 'User not found');
