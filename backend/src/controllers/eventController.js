@@ -1,5 +1,7 @@
 const DB = require("../models");
 const ResponseAPI = require("../utils/response");
+const fs = require("fs");
+const { imageUpload } = require("../utils/imageUtil");
 
 const eventController = {
   async getAll(req, res) {
@@ -23,8 +25,18 @@ const eventController = {
   async create(req, res) {
     try {
       const event = await DB.Event.create(req.body);
+      if (req.file) {
+        const urlUploadResult = await imageUpload(req.file);
+
+        event.posterUrl = urlUploadResult;
+      }
+      await event.save();
+
       return ResponseAPI.success(res, event);
     } catch (error) {
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
       return ResponseAPI.error(res, error.message);
     }
   },
@@ -35,9 +47,21 @@ const eventController = {
         return ResponseAPI.error(res, "ID not provided!", 400);
       }
 
-      const event = await DB.Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      const event = await DB.Event.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+      });
+      if (req.file) {
+        const urlUploadResult = await imageUpload(req.file);
+
+        event.posterUrl = urlUploadResult;
+      }
+      await event.save();
+
       return ResponseAPI.success(res, event);
     } catch (error) {
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
       return ResponseAPI.error(res, error.message);
     }
   },
@@ -57,39 +81,43 @@ const eventController = {
 
   async getFilterOptions(req, res) {
     try {
-      const locations = await DB.Event.distinct('location');
+      const locations = await DB.Event.distinct("location");
       const dates = await DB.Event.aggregate([
         {
           $group: {
             _id: {
               year: { $year: "$dateTime" },
               month: { $month: "$dateTime" },
-              day: { $dayOfMonth: "$dateTime" }
-            }
-          }
+              day: { $dayOfMonth: "$dateTime" },
+            },
+          },
         },
         {
           $project: {
             date: {
               $dateFromParts: {
-                'year': "$_id.year",
-                'month': "$_id.month",
-                'day': "$_id.day"
-              }
-            }
-          }
+                year: "$_id.year",
+                month: "$_id.month",
+                day: "$_id.day",
+              },
+            },
+          },
         },
         {
           $project: {
-            date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }
-          }
-        }
+            date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+          },
+        },
       ]);
 
-      ResponseAPI.success(res, {
-        locations,
-        dates: dates.map(item => item.date)
-      }, 'Filter options retrieved successfully');
+      ResponseAPI.success(
+        res,
+        {
+          locations,
+          dates: dates.map((item) => item.date),
+        },
+        "Filter options retrieved successfully"
+      );
     } catch (error) {
       return ResponseAPI.serverError(res, error);
     }
@@ -102,7 +130,7 @@ const eventController = {
       let filter = {};
 
       if (location && location.trim() !== "") {
-        filter.location = { $regex: location, $options: 'i' };
+        filter.location = { $regex: location, $options: "i" };
       }
 
       if (date) {
@@ -120,10 +148,13 @@ const eventController = {
       const events = await DB.Event.find(filter);
 
       if (events.length === 0) {
-        return ResponseAPI.notFound(res, 'No events found for the given filters');
+        return ResponseAPI.notFound(
+          res,
+          "No events found for the given filters"
+        );
       }
 
-      ResponseAPI.success(res, events, 'Events retrieved successfully');
+      ResponseAPI.success(res, events, "Events retrieved successfully");
     } catch (error) {
       return ResponseAPI.serverError(res, error);
     }
@@ -137,20 +168,27 @@ const eventController = {
         return ResponseAPI.badRequest(res, "Keyword is required for search");
       }
 
-      const searchRegex = new RegExp(`\\b${keyword}`, 'i');
+      const searchRegex = new RegExp(`\\b${keyword}`, "i");
 
       const events = await DB.Event.find({
         $or: [
           { name: { $regex: searchRegex } },
-          { eventBy: { $regex: searchRegex } }
-        ]
+          { eventBy: { $regex: searchRegex } },
+        ],
       });
 
       if (events.length === 0) {
-        return ResponseAPI.notFound(res, "No events found matching the keyword");
+        return ResponseAPI.notFound(
+          res,
+          "No events found matching the keyword"
+        );
       }
 
-      return ResponseAPI.success(res, events, "Search results retrieved successfully");
+      return ResponseAPI.success(
+        res,
+        events,
+        "Search results retrieved successfully"
+      );
     } catch (error) {
       return ResponseAPI.serverError(res, error);
     }
