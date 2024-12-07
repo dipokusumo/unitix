@@ -13,7 +13,7 @@ const seedDatabase = async () => {
             return process.exit(0);
         }
 
-        const admin = new User({
+        const admin = new DB.User({
             name: 'Admin UniTIX',
             email: 'admin@unitix.com',
             password: 'tixinfinity2411',
