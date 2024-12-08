@@ -6,6 +6,8 @@ import App from './App.jsx';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/AdminHome';
 import MainPage from "./pages/CustomerDashboard"
+import EventPage from './pages/AcaraPage';
+import DetailAcara from './pages/DetailPage.JSX';
 
 // Mendefinisikan router
 const router = createBrowserRouter([
@@ -19,11 +21,19 @@ const router = createBrowserRouter([
   },
   {
     path: "/HomeAdmin",
-    element: <DashboardPage />, // Halaman login
+    element: <DashboardPage />, // Halaman Home Admin
   },
   {
     path: "/HomeCustomer",
-    element: <MainPage />, // Halaman login
+    element: <MainPage />, // Halaman Home Customer
+  },
+  {
+    path: "/Acara",
+    element: <EventPage />, // Halaman Acara
+  },
+  {
+    path: "/detail/:eventId",
+    element: <DetailAcara />, // Halaman Acara
   },
 ]);
 
