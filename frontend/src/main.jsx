@@ -5,17 +5,23 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from './App.jsx';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/AdminHome';
-import MainPage from "./pages/CustomerDashboard"
+import MainPage from './pages/CustomerDashboard';
 import EventPage from './pages/AcaraPage';
-import DetailAcara from './pages/DetailPage.JSX';
+import DetailAcara from './pages/DetailPage';
 import CustomerHome from './pages/CustomerHome';
 import ConfirmationPage from './pages/ConfirmationPage';
+import EventPage from './pages/AcaraPage';
+import RegisterPage from './pages/RegisterPage.jsx'
 
 // Mendefinisikan router
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />, // Halaman utama
+  },
+  {
+    path: "/register",
+    element: <RegisterPage />,
   },
   {
     path: "/login",
