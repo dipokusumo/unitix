@@ -11,7 +11,7 @@ function RegisterPage() {
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
-    e.preventDefault(); // Prevent form default submission behavior
+    e.preventDefault();
 
     if (!username || !email || !password || !confirmPassword) {
       setError('Semua field harus diisi');
@@ -23,7 +23,6 @@ function RegisterPage() {
       return;
     }
 
-    // Api
     try {
       const response = await fetch('/api/register', {
         method: 'POST',
@@ -35,108 +34,81 @@ function RegisterPage() {
         throw new Error('Pendaftaran gagal');
       }
 
-      // Pendaftaran berhasil, tampilkan pesan sukses dan arahkan ke halaman login
       toast.success('Akun baru berhasil dibuat! Silakan login.');
       navigate('/login');
     } catch (err) {
-      console.error('Error during registration:', err);
-      setError('Terjadi kesalahan saat pendaftaran. Silakan coba lagi.');
+      console.error(err);
+      setError('Terjadi kesalahan saat pendaftaran.');
     }
   };
 
   return (
-    <div className="h-screen w-full font-sans overflow-y-hidden">
-      {/* Desktop View */}
-      <div className="hidden md:block h-full bg-black bg-opacity-50">
-        <div className="flex items-center justify-center h-full">
-          <div className="flex w-[800px] h-[450px] bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="w-full p-8 flex flex-col justify-center items-center">
-              <h1 className="text-2xl sm:text-3xl font-semibold text-center text-gray-800 mb-4">
-                DAFTAR DI UNITIX
-              </h1>
-              <p className="text-sm sm:text-lg text-center text-gray-600 mb-6">
-                Gabung bersama komunitas kami dan nikmati berbagai pengalaman!
-              </p>
+    <div className="RegisterPage w-full h-screen flex flex-col items-center justify-center bg-gray-100">
+      {/* Gambar Background */}
+      <img
+        className="NainoaShizuruNcdg9mk3pbyUnsplash12 w-96 h-96 absolute opacity-70"
+        src="https://via.placeholder.com/1440x1020"
+        alt="background"
+      />
 
-              <form className="w-full" onSubmit={handleRegister}>
-                <div className="mb-4">
-                  <label htmlFor="username" className="block text-sm font-semibold text-gray-700">
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    placeholder="Enter your username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="w-full p-3 mt-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
+      {/* Form Register */}
+      <div className="w-96 bg-white p-8 rounded-xl shadow-lg relative">
+        <h1 className="text-2xl font-bold text-center mb-4">Register</h1>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        <form onSubmit={handleRegister} className="flex flex-col gap-4">
+          <input
+            type="text"
+            placeholder="Nama Pengguna"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="p-2 border rounded-md"
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="p-2 border rounded-md"
+          />
+          <input
+            type="password"
+            placeholder="Kata Sandi"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="p-2 border rounded-md"
+          />
+          <input
+            type="password"
+            placeholder="Ulangi Kata Sandi"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="p-2 border rounded-md"
+          />
+          <button
+            type="submit"
+            className="bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+          >
+            Buat Akun
+          </button>
+        </form>
+      </div>
 
-                <div className="mb-4">
-                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full p-3 mt-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700">
-                    Konfirmasi Password
-                  </label>
-                  <input
-                    type="password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    placeholder="Enter your confirm password"
-                    value={confirmPassword}
-                    // onChange={(e) => setConfirmPassword
-
-                    //   (e) => setConfirmPassword(e.target.value)}
-                    //   className="w-full p-3 mt-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-  
-                  {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-  
-                  <button
-                    type="submit"
-                    className="w-full bg-[#00FFFF] text-black p-3 rounded-full hover:bg-[#00E0E0] focus:outline-none focus:ring-2 focus:ring-[#00FFFF]"
-                  >
-                    Daftar
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
+      {/* Notifikasi Berhasil */}
+      <div className="NotifRegister w-96 h-96 absolute top-[200px] left-[300px] bg-white shadow-lg rounded-2xl">
+        <div className="Rectangle337 w-96 h-96 left-0 top-0 absolute bg-zinc-100 rounded-3xl" />
+        <div className="EmojioneBallotBoxWithCheck w-20 h-20 left-[263px] top-[38px] absolute" />
+        <div className="AkunBaruBerhasilDibuat w-60 h-5 left-[188px] top-[145px] absolute text-center text-neutral-900 text-base font-medium font-['Montserrat'] tracking-wide">
+          Akun baru berhasil dibuat
         </div>
-  
-        {/* Mobile View */}
-        <div className="block md:hidden h-full flex items-center justify-center bg-white">
-          <div className="w-full sm:w-96 bg-white rounded-lg shadow-lg p-8">
-            <h1 className="text-2xl font-semibold text-center text-gray-800 mb-4">
-              DAFTAR DI UNITIX
-            </h1>
-            <p className="text-sm text-center text-gray-600 mb-6">
-              Gabung bersama komunitas kami dan nikmati berbagai pengalaman!
-            </p>
-  
-            <form className="w-full" onSubmit={handleRegister}>
-              {/* Form elements yang sama seperti di tampilan desktop */}
-            </form>
+        <div className="Group19 w-56 h-10 left-[195px] top-[270px] absolute">
+          <div className="Rectangle338 w-56 h-10 left-0 top-0 absolute bg-cyan-400 rounded-xl shadow" />
+          <div className="KembaliKeLogIn left-[35px] top-[15px] absolute text-center text-neutral-900 text-base font-semibold font-['Montserrat'] tracking-wide">
+            Kembali ke log in
           </div>
         </div>
       </div>
-    );
-  }
-  
-  export default RegisterPage;
+    </div>
+  );
+}
+
+export default RegisterPage;
