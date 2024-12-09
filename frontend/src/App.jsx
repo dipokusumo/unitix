@@ -4,6 +4,7 @@ import MainPage from "./pages/CustomerDashboard"
 import EventPage from "./pages/AcaraPage";
 import { ToastContainer } from 'react-toastify';
 import DetailAcara from "./pages/DetailPage.jsx";
+import ConfirmationPage from "./pages/ConfirmationPage";
 export default function App() {
   return (
     <div>
@@ -13,6 +14,7 @@ export default function App() {
       <MainPage/>
       <EventPage/>
       <DetailAcara/>
+      <ConfirmationPage/>
 
      
       

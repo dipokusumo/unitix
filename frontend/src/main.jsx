@@ -9,6 +9,7 @@ import MainPage from "./pages/CustomerDashboard"
 import EventPage from './pages/AcaraPage';
 import DetailAcara from './pages/DetailPage.JSX';
 import CustomerHome from './pages/CustomerHome';
+import ConfirmationPage from './pages/ConfirmationPage';
 
 // Mendefinisikan router
 const router = createBrowserRouter([
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
   {
     path: "/detail/:eventId",
     element: <DetailAcara />, // Halaman Acara
+  },
+  {
+    path: "/konfirmasi",
+    element: <ConfirmationPage />, // Halaman Acara
   },
 ]);
 
