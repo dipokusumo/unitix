@@ -54,7 +54,7 @@ const userController = {
         return ResponseAPI.notFound(res, "Email not found");
       }
 
-      const newPassword = crypto.randomBytes(4).toString("hex");
+      const newPassword = crypto.randomBytes(4).toString('hex');
 
       user.password = newPassword;
       await user.save();
@@ -189,39 +189,39 @@ const userController = {
       const users = await DB.User.aggregate([
         {
           $lookup: {
-            from: "transactions",
-            localField: "_id",
-            foreignField: "customerId",
-            as: "transactions",
-          },
+            from: 'transactions',
+            localField: '_id',
+            foreignField: 'customerId',
+            as: 'transactions'
+          }
         },
         {
           $unwind: {
-            path: "$transactions",
-            preserveNullAndEmptyArrays: true,
-          },
+            path: '$transactions',
+            preserveNullAndEmptyArrays: true
+          }
         },
         {
           $match: {
-            "transactions.paymentStatus": "completed",
-          },
+            'transactions.paymentStatus': 'completed'
+          }
         },
         {
           $group: {
-            _id: "$_id",
-            name: { $first: "$name" },
-            email: { $first: "$email" },
-            transactionCount: { $sum: 1 },
-          },
+            _id: '$_id',
+            name: { $first: '$name' },
+            email: { $first: '$email' },
+            transactionCount: { $sum: 1 }
+          }
         },
         {
           $project: {
             _id: 1,
             name: 1,
             email: 1,
-            transactionCount: 1,
-          },
-        },
+            transactionCount: 1
+          }
+        }
       ]);
 
       return ResponseAPI.success(

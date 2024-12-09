@@ -17,7 +17,7 @@ function LoginPage() {
       await userApi.login(email, password);
       
       // Navigate
-      navigate('/main'); 
+      navigate('/HomeCustomer'); 
       setInputEmail('');
       setInputPassword('');
       
