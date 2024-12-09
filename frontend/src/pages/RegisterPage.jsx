@@ -1,3 +1,4 @@
+// RegisterPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -11,7 +12,7 @@ function RegisterPage() {
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
-    e.preventDefault(); // Prevent form default submission behavior
+    e.preventDefault();
 
     if (!username || !email || !password || !confirmPassword) {
       setError('Semua field harus diisi');
@@ -23,7 +24,6 @@ function RegisterPage() {
       return;
     }
 
-    // Api
     try {
       const response = await fetch('/api/register', {
         method: 'POST',
@@ -35,108 +35,79 @@ function RegisterPage() {
         throw new Error('Pendaftaran gagal');
       }
 
-      // Pendaftaran berhasil, tampilkan pesan sukses dan arahkan ke halaman login
       toast.success('Akun baru berhasil dibuat! Silakan login.');
       navigate('/login');
     } catch (err) {
-      console.error('Error during registration:', err);
-      setError('Terjadi kesalahan saat pendaftaran. Silakan coba lagi.');
+      console.error(err);
+      setError('Terjadi kesalahan saat pendaftaran.');
     }
   };
 
   return (
-    <div className="h-screen w-full font-sans overflow-y-hidden">
-      {/* Desktop View */}
-      <div className="hidden md:block h-full bg-black bg-opacity-50">
-        <div className="flex items-center justify-center h-full">
-          <div className="flex w-[800px] h-[450px] bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="w-full p-8 flex flex-col justify-center items-center">
-              <h1 className="text-2xl sm:text-3xl font-semibold text-center text-gray-800 mb-4">
-                DAFTAR DI UNITIX
-              </h1>
-              <p className="text-sm sm:text-lg text-center text-gray-600 mb-6">
-                Gabung bersama komunitas kami dan nikmati berbagai pengalaman!
-              </p>
+    <div
+      className="h-screen w-full font-sans overflow-y-hidden"
+      style={{
+        backgroundImage: "url('https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center center',
+        backgroundAttachment: 'fixed',
+      }}
+    >
+      {/* Form */}
+      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg mx-auto my-auto">
+        <h1 className="text-2xl font-semibold text-center text-gray-800 mb-4">DAFTAR AKUN BARU</h1>
+        <p className="text-sm text-center text-gray-600 mb-4">Satu klik, ribuan pengalaman</p>
 
-              <form className="w-full" onSubmit={handleRegister}>
-                <div className="mb-4">
-                  <label htmlFor="username" className="block text-sm font-semibold text-gray-700">
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    placeholder="Enter your username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="w-full p-3 mt-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
+        <form onSubmit={handleRegister} className="flex flex-col gap-4">
+          <input
+            type="text"
+            placeholder="Nama Pengguna"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="p-3 border rounded-md"
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="p-3 border rounded-md"
+          />
+          <input
+            type="password"
+            placeholder="Kata Sandi"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="p-3 border rounded-md"
+          />
+          <input
+            type="password"
+            placeholder="Ulangi Kata Sandi"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="p-3 border rounded-md"
+          />
+          {error && <p className="text-red-500 text-sm">{error}</p>}
 
-                <div className="mb-4">
-                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full p-3 mt-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
+          <button
+            type="submit"
+            className="bg-[#00FFFF] text-black p-3 rounded-full hover:bg-[#00E0E0] focus:outline-none focus:ring-2 focus:ring-[#00FFFF]"
+          >
+            Buat Akun
+          </button>
 
-                <div className="mb-4">
-                  <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700">
-                    Konfirmasi Password
-                  </label>
-                  <input
-                    type="password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    placeholder="Enter your confirm password"
-                    value={confirmPassword}
-                    // onChange={(e) => setConfirmPassword
-
-                    //   (e) => setConfirmPassword(e.target.value)}
-                    //   className="w-full p-3 mt-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-  
-                  {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-  
-                  <button
-                    type="submit"
-                    className="w-full bg-[#00FFFF] text-black p-3 rounded-full hover:bg-[#00E0E0] focus:outline-none focus:ring-2 focus:ring-[#00FFFF]"
-                  >
-                    Daftar
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-  
-        {/* Mobile View */}
-        <div className="block md:hidden h-full flex items-center justify-center bg-white">
-          <div className="w-full sm:w-96 bg-white rounded-lg shadow-lg p-8">
-            <h1 className="text-2xl font-semibold text-center text-gray-800 mb-4">
-              DAFTAR DI UNITIX
-            </h1>
-            <p className="text-sm text-center text-gray-600 mb-6">
-              Gabung bersama komunitas kami dan nikmati berbagai pengalaman!
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-800">
+              Sudah punya akun?{' '}
+              <a href="/login" className="text-[#ff3b3b] hover:underline">
+                Login Sekarang
+              </a>
             </p>
-  
-            <form className="w-full" onSubmit={handleRegister}>
-              {/* Form elements yang sama seperti di tampilan desktop */}
-            </form>
           </div>
-        </div>
+        </form>
       </div>
-    );
-  }
-  
-  export default RegisterPage;
+    </div>
+  );
+}
+
+export default RegisterPage;
