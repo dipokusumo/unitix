@@ -25,11 +25,15 @@ const eventController = {
   async create(req, res) {
     try {
       const event = await DB.Event.create(req.body);
+
       if (req.file) {
         const urlUploadResult = await imageUpload(req.file);
-
+    
         event.posterUrl = urlUploadResult;
+      } else {
+          return ResponseAPI.badRequest(res, 'Banner event is required');
       }
+
       await event.save();
 
       return ResponseAPI.success(res, event);
@@ -81,43 +85,41 @@ const eventController = {
 
   async getFilterOptions(req, res) {
     try {
-      const locations = await DB.Event.distinct("location");
+      const locations = await DB.Event.distinct('location');
       const dates = await DB.Event.aggregate([
         {
           $group: {
             _id: {
               year: { $year: "$dateTime" },
               month: { $month: "$dateTime" },
-              day: { $dayOfMonth: "$dateTime" },
-            },
-          },
+              day: { $dayOfMonth: "$dateTime" }
+            }
+          }
         },
         {
           $project: {
             date: {
               $dateFromParts: {
-                year: "$_id.year",
-                month: "$_id.month",
-                day: "$_id.day",
-              },
-            },
-          },
+                'year': "$_id.year",
+                'month': "$_id.month",
+                'day': "$_id.day"
+              }
+            }
+          }
         },
         {
           $project: {
-            date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
-          },
-        },
+            date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }
+          }
+        }
       ]);
 
       ResponseAPI.success(
-        res,
-        {
-          locations,
-          dates: dates.map((item) => item.date),
-        },
-        "Filter options retrieved successfully"
-      );
+        res, {
+        locations,
+        dates: dates.map(item => item.date)
+      }, 
+      'Filter options retrieved successfully');
     } catch (error) {
       return ResponseAPI.serverError(res, error);
     }
@@ -130,7 +132,7 @@ const eventController = {
       let filter = {};
 
       if (location && location.trim() !== "") {
-        filter.location = { $regex: location, $options: "i" };
+        filter.location = { $regex: `^${location}`, $options: 'i' };
       }
 
       if (date) {
@@ -168,7 +170,7 @@ const eventController = {
         return ResponseAPI.badRequest(res, "Keyword is required for search");
       }
 
-      const searchRegex = new RegExp(`\\b${keyword}`, "i");
+      const searchRegex = new RegExp(`\\b${keyword}`, 'i');
 
       const events = await DB.Event.find({
         $or: [

@@ -6,14 +6,19 @@ import App from './App.jsx';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/AdminHome';
 import MainPage from "./pages/CustomerDashboard"
-import EventPage from './pages/AcaraPage';
-import DetailAcara from './pages/DetailPage.JSX';
+import EventPage from "./pages/AcaraPage";
+import DetailAcara from "./pages/DetailPage";
+import RegisterPage from "./pages/RegisterPage.jsx";
 
 // Mendefinisikan router
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />, // Halaman utama
+  },
+  {
+    path: "/register",
+    element: <RegisterPage />,
   },
   {
     path: "/login",
