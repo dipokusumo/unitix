@@ -1,3 +1,4 @@
+// RegisterPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -43,69 +44,67 @@ function RegisterPage() {
   };
 
   return (
-    <div className="RegisterPage w-full h-screen flex flex-col items-center justify-center bg-gray-100">
-      {/* Gambar Background */}
-      <img
-        className="NainoaShizuruNcdg9mk3pbyUnsplash12 w-96 h-96 absolute opacity-70"
-        src="https://via.placeholder.com/1440x1020"
-        alt="background"
-      />
+    <div
+      className="h-screen w-full font-sans overflow-y-hidden"
+      style={{
+        backgroundImage: "url('https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center center',
+        backgroundAttachment: 'fixed',
+      }}
+    >
+      {/* Form */}
+      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg mx-auto my-auto">
+        <h1 className="text-2xl font-semibold text-center text-gray-800 mb-4">DAFTAR AKUN BARU</h1>
+        <p className="text-sm text-center text-gray-600 mb-4">Satu klik, ribuan pengalaman</p>
 
-      {/* Form Register */}
-      <div className="w-96 bg-white p-8 rounded-xl shadow-lg relative">
-        <h1 className="text-2xl font-bold text-center mb-4">Register</h1>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
         <form onSubmit={handleRegister} className="flex flex-col gap-4">
           <input
             type="text"
             placeholder="Nama Pengguna"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="p-2 border rounded-md"
+            className="p-3 border rounded-md"
           />
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="p-2 border rounded-md"
+            className="p-3 border rounded-md"
           />
           <input
             type="password"
             placeholder="Kata Sandi"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="p-2 border rounded-md"
+            className="p-3 border rounded-md"
           />
           <input
             type="password"
             placeholder="Ulangi Kata Sandi"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="p-2 border rounded-md"
+            className="p-3 border rounded-md"
           />
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
           <button
             type="submit"
-            className="bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+            className="bg-[#00FFFF] text-black p-3 rounded-full hover:bg-[#00E0E0] focus:outline-none focus:ring-2 focus:ring-[#00FFFF]"
           >
             Buat Akun
           </button>
-        </form>
-      </div>
 
-      {/* Notifikasi Berhasil */}
-      <div className="NotifRegister w-96 h-96 absolute top-[200px] left-[300px] bg-white shadow-lg rounded-2xl">
-        <div className="Rectangle337 w-96 h-96 left-0 top-0 absolute bg-zinc-100 rounded-3xl" />
-        <div className="EmojioneBallotBoxWithCheck w-20 h-20 left-[263px] top-[38px] absolute" />
-        <div className="AkunBaruBerhasilDibuat w-60 h-5 left-[188px] top-[145px] absolute text-center text-neutral-900 text-base font-medium font-['Montserrat'] tracking-wide">
-          Akun baru berhasil dibuat
-        </div>
-        <div className="Group19 w-56 h-10 left-[195px] top-[270px] absolute">
-          <div className="Rectangle338 w-56 h-10 left-0 top-0 absolute bg-cyan-400 rounded-xl shadow" />
-          <div className="KembaliKeLogIn left-[35px] top-[15px] absolute text-center text-neutral-900 text-base font-semibold font-['Montserrat'] tracking-wide">
-            Kembali ke log in
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-800">
+              Sudah punya akun?{' '}
+              <a href="/login" className="text-[#ff3b3b] hover:underline">
+                Login Sekarang
+              </a>
+            </p>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
