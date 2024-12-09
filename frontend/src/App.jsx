@@ -9,8 +9,8 @@ import AdminHome from "./pages/AdminHome";
 export default function App() {
   return (
     <div>
-      <RegisterPage/>
       <LoginPage/>
+      <RegisterPage/>
       <ToastContainer />
       <DashboardPage/>
       <AdminHome/>
