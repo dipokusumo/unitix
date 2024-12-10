@@ -22,6 +22,14 @@ h1, h2, h3, p, button {
   font-family: 'Montserrat', sans-serif;
 }
 
+.scrollbar-hidden {
+  overflow: scroll; /* Memungkinkan scroll */
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none; /* Menyembunyikan scrollbar */
+}
+
 /* TailwindCSS can be customized further, but default utility classes will still work */
 
   

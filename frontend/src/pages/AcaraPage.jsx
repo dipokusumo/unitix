@@ -66,9 +66,9 @@ function EventPage() {
           <h1 className="text-2xl font-semibold">acara menarik disini</h1>
         </div>
 
-        {/* Kotak besar dengan scroll namun tanpa scrollbar yang terlihat */}
-        <div className="bg-[#00CCCC] p-6 rounded-xl max-h-[500px] overflow-y-auto">
-          {/* Kotak Urutkan */}
+        
+        <div className="bg-[#00CCCC] p-6 rounded-xl max-h-[500px] overflow-y-auto scrollbar-hidden">
+          
           <div className="relative mb-4 flex justify-center">
             <button
               className="flex items-center bg-white text-black px-3 py-1.5 rounded-xl shadow hover:bg-gray-200"
