@@ -9,6 +9,9 @@ import MainPage from "./pages/CustomerDashboard";
 import EventPage from "./pages/AcaraPage";
 import DetailAcara from "./pages/DetailPage";
 import ConfirmationPage from "./pages/ConfirmationPage";
+import HistoryPage from './pages/HistoryPage';
+import EditProfilePage from './pages/ProfilePage';
+import ChangePassword from './pages/ChangePasswordPage';
 
 const App = () => {
   return (
@@ -22,6 +25,9 @@ const App = () => {
         <Route path="/event" element={<EventPage />} />
         <Route path="/event-detail" element={<DetailAcara />} />
         <Route path="/confirmation" element={<ConfirmationPage />} />
+        <Route path="/history" element={<HistoryPage />} />
+        <Route path="/edit-profile" element={<EditProfilePage />} />
+        <Route path="/change-password" element={<ChangePassword />} />
       </Routes>
       <ToastContainer />
     </Router>
