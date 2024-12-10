@@ -12,6 +12,12 @@ import ConfirmationPage from "./pages/ConfirmationPage";
 import HistoryPage from './pages/HistoryPage';
 import EditProfilePage from './pages/ProfilePage';
 import ChangePassword from './pages/ChangePasswordPage';
+import CreateEventPage from './pages/CreateEventPage';
+import EditEventPage from './pages/EditEventPage';
+import DetailStatistik from './pages/DetailStatistik';
+import KelolaPenggunaPage from './pages/KelolaPengguna';
+import StatistikPenjualanPage from './pages/StatistikPenjualanPage';
+import AktivitasPage from './pages/AktivitasPage';
 
 const App = () => {
   return (
@@ -28,6 +34,12 @@ const App = () => {
         <Route path="/history" element={<HistoryPage />} />
         <Route path="/edit-profile" element={<EditProfilePage />} />
         <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/create-event" element={<CreateEventPage />} />
+        <Route path="/edit-event/:eventId" element={<EditEventPage />} />
+        <Route path="/statistik-penjualan" element={<StatistikPenjualanPage />} />
+        <Route path="/statistik-penjualan/:statistikId" element={<DetailStatistik />} />
+        <Route path="/statistik-penjualan/:statistikId/aktivitas" element={<AktivitasPage />} />
+        <Route path="/kelola-pengguna" element={<KelolaPenggunaPage />} />
       </Routes>
       <ToastContainer />
     </Router>
