@@ -268,6 +268,48 @@ const userController = {
     }
   },
 
+  async getUserBoxInfo(req, res) {
+    try {
+      const customerId = req.user.id;
+  
+      const totalTickets = await DB.Ticket.countDocuments({ customerId });
+  
+      const completedTransactions = await DB.Transaction.countDocuments({
+        customerId,
+        paymentStatus: "completed",
+      });
+  
+      const totalAmountData = await DB.Transaction.aggregate([
+        {
+          $match: {
+            customerId: customerId,
+            paymentStatus: "completed",
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalAmount: { $sum: "$amount" },
+          },
+        },
+      ]);
+  
+      const totalAmount = totalAmountData.length > 0 ? totalAmountData[0].totalAmount : 0;
+  
+      return ResponseAPI.success(
+        res,
+        {
+          totalTickets,
+          completedTransactions,
+          totalAmount,
+        },
+        "User box info retrieved successfully"
+      );
+    } catch (error) {
+      return ResponseAPI.serverError(res, error);
+    }
+  },
+
   async deleteUser(req, res) {
     try {
       const userId = req.params.id;

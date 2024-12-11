@@ -5,10 +5,64 @@ const fs = require("fs");
 const { imageUpload } = require("../utils/imageUtil");
 
 const eventController = {
+  async getAllAdmin(req, res) {
+    try {
+      const events = await DB.Event.find().sort({ dateTime: 1 });
+
+      return ResponseAPI.success(res, events, "Events retrieved successfully");
+    } catch (error) {
+      return ResponseAPI.error(res, error);
+    }
+  },
+
   async getAll(req, res) {
     try {
-      const events = await DB.Event.find();
-      return ResponseAPI.success(res, events);
+      const now = new Date();
+
+      const events = await DB.Event.find({ dateTime: { $gte: now } }).sort({
+        dateTime: 1,
+      });
+
+      return ResponseAPI.success(res, events, "Events retrieved successfully");
+    } catch (error) {
+      return ResponseAPI.error(res, error);
+    }
+  },
+
+  async getUpcomingEvents(req, res) {
+    try {
+      const now = new Date();
+
+      const upcomingEvents = await DB.Event.find({ dateTime: { $gte: now } })
+        .sort({ dateTime: 1 })
+        .limit(4);
+
+      return ResponseAPI.success(
+        res,
+        upcomingEvents,
+        "Upcoming events retrieved successfully"
+      );
+    } catch (error) {
+      return ResponseAPI.error(res, error);
+    }
+  },
+
+  async getRecommendedEvents(req, res) {
+    try {
+      const now = new Date();
+
+      const recommendedEvents = await DB.Event.find({
+        dateTime: { $gte: now },
+      })
+        .sort({ quota: -1 })
+        .limit(3);
+
+      // Kirimkan response
+      return ResponseAPI.success(
+        res,
+        recommendedEvents,
+        "Recommended events retrieved successfully"
+      );
     } catch (error) {
       return ResponseAPI.error(res, error.message);
     }
@@ -73,12 +127,29 @@ const eventController = {
 
   async delete(req, res) {
     try {
-      if (!req.params.id) {
+      const { id } = req.params;
+
+      if (!id) {
         return ResponseAPI.error(res, "ID not provided!", 400);
       }
 
-      const event = await DB.Event.findByIdAndDelete(req.params.id);
-      return ResponseAPI.success(res, event);
+      const transactionExists = await DB.Transaction.exists({ eventId: id });
+
+      if (transactionExists) {
+        return ResponseAPI.error(
+          res,
+          "Cannot delete event because it is associated with existing transactions.",
+          400
+        );
+      }
+
+      const event = await DB.Event.findByIdAndDelete(id);
+
+      if (!event) {
+        return ResponseAPI.notFound(res, "Event not found!");
+      }
+
+      return ResponseAPI.success(res, event, "Event deleted successfully");
     } catch (error) {
       return ResponseAPI.error(res, error.message);
     }
@@ -86,8 +157,13 @@ const eventController = {
 
   async getFilterOptions(req, res) {
     try {
-      const locations = await DB.Event.distinct("location");
+      const locations = await DB.Event.distinct("location", {
+        dateTime: { $gte: now },
+      });
       const dates = await DB.Event.aggregate([
+        {
+          $match: { dateTime: { $gte: now } },
+        },
         {
           $group: {
             _id: {
@@ -132,7 +208,9 @@ const eventController = {
     try {
       const { location, date } = req.query;
 
-      let filter = {};
+      let filter = {
+        dateTime: { $gte: new Date() },
+      };
 
       if (location && location.trim() !== "") {
         filter.location = { $regex: `^${location}`, $options: "i" };
@@ -175,7 +253,10 @@ const eventController = {
 
       const searchRegex = new RegExp(`\\b${keyword}`, "i");
 
+      const now = new Date();
+
       const events = await DB.Event.find({
+        dateTime: { $gte: now },
         $or: [
           { name: { $regex: searchRegex } },
           { eventBy: { $regex: searchRegex } },

@@ -28,17 +28,23 @@ userRouter.get(
   authorizedRole("admin"),
   userController.getAllUsers
 );
-userRouter.delete(
-  "/admin/delete-user/:id",
-  auth,
-  authorizedRole("admin"),
-  userController.deleteUser
-);
 userRouter.get(
   "/admin/box-info",
   auth,
   authorizedRole("admin"),
   userController.getSummary
+);
+userRouter.get(
+  "/user/box-info",
+  auth,
+  authorizedRole("user"),
+  userController.getUserBoxInfo
+);
+userRouter.delete(
+  "/admin/delete-user/:id",
+  auth,
+  authorizedRole("admin"),
+  userController.deleteUser
 );
 
 module.exports = userRouter;
