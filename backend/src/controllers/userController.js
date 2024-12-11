@@ -126,7 +126,7 @@ const userController = {
       if (req.file) {
         const urlUploadResult = await imageUpload(req.file);
 
-        user.photo_url = urlUploadResult;
+        user.photo_url = urlUploadResult.data.url;
       }
 
       if (name) user.name = name;
@@ -151,7 +151,6 @@ const userController = {
       if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
       }
-      next(error);
       return ResponseAPI.serverError(res, error);
     }
   },
@@ -203,7 +202,10 @@ const userController = {
         },
         {
           $match: {
-            'transactions.paymentStatus': 'completed'
+            $or: [
+              { 'transactions.paymentStatus': 'completed' },
+              { 'transactions': { $exists: false } }
+            ]
           }
         },
         {
@@ -211,7 +213,15 @@ const userController = {
             _id: '$_id',
             name: { $first: '$name' },
             email: { $first: '$email' },
-            transactionCount: { $sum: 1 }
+            transactionCount: { 
+              $sum: { 
+                $cond: [
+                  { $eq: ['$transactions.paymentStatus', 'completed'] }, 
+                  1, 
+                  0
+                ] 
+            } 
+            }
           }
         },
         {
@@ -233,10 +243,50 @@ const userController = {
       console.error("Error getting users with completed transactions:", error);
       return ResponseAPI.serverError(
         res,
-        error.message || "Error retrieving users"
+        error
       );
     }
   },
+
+  async getSummary(req, res) {
+    try {
+      const totalCustomers = await DB.User.countDocuments({ role: "customer" });
+
+      const totalTickets = await DB.Ticket.countDocuments();
+
+      const totalEvents = await DB.Event.countDocuments();
+
+      const summary = {
+        totalCustomers,
+        totalTickets,
+        totalEvents,
+      };
+
+      return ResponseAPI.success(res, summary, "Summary data retrieved successfully");
+    } catch (error) {
+      return ResponseAPI.serverError(res, error);
+    }
+  },
+
+  async deleteUser(req, res) {
+    try {
+      const userId = req.params.id;
+      const user = await DB.User.findById(userId);
+
+      if (!user) {
+        return ResponseAPI.notFound(res, "User not found");
+      }
+
+      if (user.role === "admin") {
+        return ResponseAPI.forbidden(res, "Cannot delete admin user");
+      }
+
+      await user.deleteOne();
+      return ResponseAPI.success(res, null, "User deleted successfully");
+    } catch (error) {
+      return ResponseAPI.serverError(res, error);
+    }
+  }
 };
 
 module.exports = userController;

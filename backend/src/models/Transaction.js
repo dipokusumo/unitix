@@ -1,44 +1,49 @@
 const mongoose = require("mongoose");
 
-const transactionSchema = new mongoose.Schema({
+const transactionSchema = new mongoose.Schema(
+  {
     eventId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Event',
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Event",
+      required: true,
     },
     customerId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-    ticketId: [{
+    ticketId: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Ticket',
+        ref: "Ticket",
         default: [],
-    }],
+      },
+    ],
     quantity: {
-        type: Number,
-        required: true,
+      type: Number,
+      required: true,
     },
     paymentMethod: {
-        type: String,
-        default: null,
-        trim: true,
+      type: String,
+      default: null,
+      trim: true,
     },
     amount: {
-        type: Number,
-        required: true,
+      type: Number,
+      required: true,
     },
     paymentLink: {
-        type: String,
+      type: String,
     },
     paymentStatus: {
-        type: String,
-        enum: ['waiting pay', 'completed', 'failed'],
-        default: 'waiting pay',
-    }
-}, {
+      type: String,
+      enum: ["waiting pay", "completed", "failed"],
+      default: "waiting pay",
+    },
+  },
+  {
     timestamps: true,
-});
+  }
+);
 
 module.exports = transactionSchema;

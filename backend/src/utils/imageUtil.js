@@ -1,21 +1,25 @@
-const fs = require('fs');
-const initCloudinary = require('../config/cloudinary');
-const ResponseAPI = require('./response');
+const fs = require("fs");
+const initCloudinary = require("../config/cloudinary");
 
-const imageUpload = async (reqFile, res) => {
-    const cld = initCloudinary();
+const imageUpload = async (reqFile) => {
+  const cld = initCloudinary();
 
-    try {
-        const uploadResult = await cld.uploader.upload(reqFile.path);
+  try {
+    const uploadResult = await cld.uploader.upload(reqFile.path);
+    fs.unlinkSync(reqFile.path);
 
-        fs.unlinkSync(reqFile.path);
-
-        return ResponseAPI.success(res, { url: uploadResult.secure_url }, 'Image uploaded successfully');
-    } catch (error) {
-        return ResponseAPI.serverError(res, error);
-    }
+    return {
+      success: true,
+      message: "Image uploaded successfully",
+      data: { url: uploadResult.secure_url },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Server error",
+      error: error.message,
+    };
+  }
 };
 
-module.exports = {
-    imageUpload
-};
+module.exports = { imageUpload };
