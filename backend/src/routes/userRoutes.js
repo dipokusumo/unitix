@@ -1,16 +1,44 @@
-const express = require('express');
-const userController = require('../controllers/userController');
-const auth = require('../middleware/auth');
-const upload = require('../utils/multer');
-const authorizedRole = require('../middleware/authorizedRole');
+const express = require("express");
+const userController = require("../controllers/userController");
+const auth = require("../middleware/auth");
+const upload = require("../utils/multer");
+const authorizedRole = require("../middleware/authorizedRole");
 
 const userRouter = express.Router();
 
-userRouter.post('/user/register', userController.register);
-userRouter.post('/user/login', userController.login);
-userRouter.post('/user/forgot-password', userController.forgotPassword);
-userRouter.post('/user/edit-profile', auth, authorizedRole('customer'), upload.single('photoUrl'), userController.editProfile);
-userRouter.post('/user/change-password', auth, authorizedRole('customer'), userController.changePassword);
-userRouter.get('/get-all-user', auth, authorizedRole('admin'), userController.getAllUsers);
+userRouter.post("/user/register", userController.register);
+userRouter.post("/user/login", userController.login);
+userRouter.post("/user/forgot-password", userController.forgotPassword);
+userRouter.post(
+  "/user/edit-profile",
+  auth,
+  authorizedRole("customer"),
+  upload.single("photoUrl"),
+  userController.editProfile
+);
+userRouter.post(
+  "/user/change-password",
+  auth,
+  authorizedRole("customer"),
+  userController.changePassword
+);
+userRouter.get(
+  "/admin/get-all-user",
+  auth,
+  authorizedRole("admin"),
+  userController.getAllUsers
+);
+userRouter.delete(
+  "/admin/delete-user/:id",
+  auth,
+  authorizedRole("admin"),
+  userController.deleteUser
+);
+userRouter.get(
+  "/admin/box-info",
+  auth,
+  authorizedRole("admin"),
+  userController.getSummary
+);
 
 module.exports = userRouter;

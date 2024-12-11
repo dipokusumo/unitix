@@ -1,21 +1,24 @@
 const mongoose = require("mongoose");
 
-const CheckinSchema = new mongoose.Schema({
+const CheckinSchema = new mongoose.Schema(
+  {
     ticketId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Ticket',
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Ticket",
+      required: true,
     },
     checkinTime: {
-        type: Date,
-        required: true,
+      type: Date,
+      required: true,
     },
     isCheckin: {
-        type: Boolean,
-        required: true,
-    }
-}, {
+      type: Boolean,
+      required: true,
+    },
+  },
+  {
     timestamps: true,
-});
+  }
+);
 
-module.exports = CheckinSchema
+module.exports = CheckinSchema;

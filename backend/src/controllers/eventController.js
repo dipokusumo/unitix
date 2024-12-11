@@ -1,4 +1,5 @@
 const DB = require("../models");
+const mongoose = require("mongoose");
 const ResponseAPI = require("../utils/response");
 const fs = require("fs");
 const { imageUpload } = require("../utils/imageUtil");
@@ -28,10 +29,10 @@ const eventController = {
 
       if (req.file) {
         const urlUploadResult = await imageUpload(req.file);
-    
-        event.posterUrl = urlUploadResult;
+
+        event.posterUrl = urlUploadResult.data.url;
       } else {
-          return ResponseAPI.badRequest(res, 'Banner event is required');
+        return ResponseAPI.badRequest(res, "Banner event is required");
       }
 
       await event.save();
@@ -57,7 +58,7 @@ const eventController = {
       if (req.file) {
         const urlUploadResult = await imageUpload(req.file);
 
-        event.posterUrl = urlUploadResult;
+        event.posterUrl = urlUploadResult.data.url;
       }
       await event.save();
 
@@ -85,41 +86,43 @@ const eventController = {
 
   async getFilterOptions(req, res) {
     try {
-      const locations = await DB.Event.distinct('location');
+      const locations = await DB.Event.distinct("location");
       const dates = await DB.Event.aggregate([
         {
           $group: {
             _id: {
               year: { $year: "$dateTime" },
               month: { $month: "$dateTime" },
-              day: { $dayOfMonth: "$dateTime" }
-            }
-          }
+              day: { $dayOfMonth: "$dateTime" },
+            },
+          },
         },
         {
           $project: {
             date: {
               $dateFromParts: {
-                'year': "$_id.year",
-                'month': "$_id.month",
-                'day': "$_id.day"
-              }
-            }
-          }
+                year: "$_id.year",
+                month: "$_id.month",
+                day: "$_id.day",
+              },
+            },
+          },
         },
         {
           $project: {
-            date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } }
-          }
-        }
+            date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+          },
+        },
       ]);
 
       ResponseAPI.success(
-        res, {
-        locations,
-        dates: dates.map(item => item.date)
-      }, 
-      'Filter options retrieved successfully');
+        res,
+        {
+          locations,
+          dates: dates.map((item) => item.date),
+        },
+        "Filter options retrieved successfully"
+      );
     } catch (error) {
       return ResponseAPI.serverError(res, error);
     }
@@ -132,7 +135,7 @@ const eventController = {
       let filter = {};
 
       if (location && location.trim() !== "") {
-        filter.location = { $regex: `^${location}`, $options: 'i' };
+        filter.location = { $regex: `^${location}`, $options: "i" };
       }
 
       if (date) {
@@ -170,7 +173,7 @@ const eventController = {
         return ResponseAPI.badRequest(res, "Keyword is required for search");
       }
 
-      const searchRegex = new RegExp(`\\b${keyword}`, 'i');
+      const searchRegex = new RegExp(`\\b${keyword}`, "i");
 
       const events = await DB.Event.find({
         $or: [
@@ -190,6 +193,64 @@ const eventController = {
         res,
         events,
         "Search results retrieved successfully"
+      );
+    } catch (error) {
+      return ResponseAPI.serverError(res, error);
+    }
+  },
+
+  async getTransactionSummaryByEvent(req, res) {
+    const { eventId } = req.params;
+
+    if (!eventId) {
+      return ResponseAPI.badRequest(res, "Event ID is required");
+    }
+
+    try {
+      const summary = await DB.Transaction.aggregate([
+        { $match: { eventId: new mongoose.Types.ObjectId(eventId) } },
+        {
+          $lookup: {
+            from: "events",
+            localField: "eventId",
+            foreignField: "_id",
+            as: "event",
+          },
+        },
+        {
+          $unwind: {
+            path: "$event",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $match: {
+            paymentStatus: "completed",
+          },
+        },
+        {
+          $group: {
+            _id: "$eventId",
+            totalTransactions: { $sum: 1 },
+            totalTickets: { $sum: { $size: "$ticketId" } },
+            totalRevenue: { $sum: "$amount" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            eventId: "$_id",
+            totalTransactions: 1,
+            totalTickets: 1,
+            totalRevenue: 1,
+          },
+        },
+      ]);
+
+      return ResponseAPI.success(
+        res,
+        summary,
+        "Transaction summary retrieved successfully"
       );
     } catch (error) {
       return ResponseAPI.serverError(res, error);
