@@ -12,6 +12,7 @@ import ConfirmationPage from "./pages/ConfirmationPage";
 import HistoryPage from './pages/HistoryPage';
 import EditProfilePage from './pages/ProfilePage';
 import ChangePassword from './pages/ChangePasswordPage';
+import ForgotPassword from './pages/ForgotPassword';
 
 const App = () => {
   return (
@@ -28,6 +29,9 @@ const App = () => {
         <Route path="/history" element={<HistoryPage />} />
         <Route path="/edit-profile" element={<EditProfilePage />} />
         <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+      
+
       </Routes>
       <ToastContainer />
     </Router>
