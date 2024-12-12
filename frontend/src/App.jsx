@@ -20,6 +20,7 @@ import DetailStatistik from './pages/DetailStatistik';
 import KelolaPenggunaPage from './pages/KelolaPengguna';
 import StatistikPenjualanPage from './pages/StatistikPenjualanPage';
 import AktivitasPage from './pages/AktivitasPage';
+import ForgotPassword from './pages/ForgotPassword';
 
 const App = () => {
   return (
@@ -44,6 +45,9 @@ const App = () => {
         <Route path="/statistik-penjualan/:statistikId" element={<DetailStatistik />} />
         <Route path="/statistik-penjualan/:statistikId/aktivitas" element={<AktivitasPage />} />
         <Route path="/kelola-pengguna" element={<KelolaPenggunaPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+      
+
       </Routes>
       <ToastContainer />
     </Router>

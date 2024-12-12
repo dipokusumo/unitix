@@ -8,8 +8,8 @@ const Navbar = () => {
       {/* Navigasi Kiri */}
       <div className="flex items-center space-x-8">
         <nav className="space-x-6 flex">
-          {[{ name: "Dashboard", path: "/homecustomer" },
-            { name: "Acara", path: "/acara" },
+          {[{ name: "Dashboard", path: "/dashboard" },
+            { name: "Acara", path: "/event" },
             { name: "Tiketku", path: "/tiketku" }].map((item, index) => (
             <Link
               key={index}
@@ -30,6 +30,7 @@ const Navbar = () => {
         <div className="relative">
           <input
             type="text"
+            path="/event"
             placeholder="Cari Acara..."
             className="pl-10 pr-4 py-1 h-8 w-64 border rounded-lg outline-none"
           />
