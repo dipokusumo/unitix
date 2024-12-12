@@ -12,6 +12,14 @@ import ConfirmationPage from "./pages/ConfirmationPage";
 import HistoryPage from './pages/HistoryPage';
 import EditProfilePage from './pages/ProfilePage';
 import ChangePassword from './pages/ChangePasswordPage';
+import PaymentSuccess from './pages/PaymentSucces';
+import PaymentFail from './pages/PaymentFail';
+import CreateEventPage from './pages/CreateEventPage';
+import EditEventPage from './pages/EditEventPage';
+import DetailStatistik from './pages/DetailStatistik';
+import KelolaPenggunaPage from './pages/KelolaPengguna';
+import StatistikPenjualanPage from './pages/StatistikPenjualanPage';
+import AktivitasPage from './pages/AktivitasPage';
 import ForgotPassword from './pages/ForgotPassword';
 
 const App = () => {
@@ -29,6 +37,14 @@ const App = () => {
         <Route path="/history" element={<HistoryPage />} />
         <Route path="/edit-profile" element={<EditProfilePage />} />
         <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/succes" element={<PaymentSuccess />} />
+        <Route path="/fail" element={<PaymentFail />} />
+        <Route path="/create-event" element={<CreateEventPage />} />
+        <Route path="/edit-event/:eventId" element={<EditEventPage />} />
+        <Route path="/statistik-penjualan" element={<StatistikPenjualanPage />} />
+        <Route path="/statistik-penjualan/:statistikId" element={<DetailStatistik />} />
+        <Route path="/statistik-penjualan/:statistikId/aktivitas" element={<AktivitasPage />} />
+        <Route path="/kelola-pengguna" element={<KelolaPenggunaPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
       
 
