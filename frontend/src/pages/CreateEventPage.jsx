@@ -6,6 +6,7 @@ import Sidebar from "../layout/AdminSidebar";
 import { eventApi } from "../api/eventApi";
 import EventInfoCard from "../layout/AdminBoxInfo";
 import { useNavigate } from "react-router-dom";
+import LoadingSpinner from "../component/loadingSpinner";
 
 function CreateEventPage() {
   const [eventData, setEventData] = useState({
@@ -17,8 +18,9 @@ function CreateEventPage() {
     ticketPrice: "",
     eventBy: "",
   });
-  const [imagePreview, setImagePreview] = useState(""); // Untuk menyimpan URL preview gambar
+  const [imagePreview, setImagePreview] = useState("");
   const [posterUrl, setposterUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -35,7 +37,7 @@ function CreateEventPage() {
     const { name, value } = e.target;
     setEventData((prevData) => ({
       ...prevData,
-      [name]: value, // Jika input adalah file, ambil file-nya
+      [name]: value,
     }));
   };
 
@@ -51,6 +53,8 @@ function CreateEventPage() {
         confirmButtonColor: "#3085d6",
       });
     }
+
+    setLoading(true);
 
     try {
       const formData = new FormData();
@@ -72,7 +76,7 @@ function CreateEventPage() {
         confirmButtonText: "OK",
         confirmButtonColor: "#3085d6",
       }).then(() => {
-        navigate("/admin")
+        navigate("/admin");
       });
     } catch (error) {
       Swal.fire({
@@ -82,6 +86,8 @@ function CreateEventPage() {
         confirmButtonText: "OK",
         confirmButtonColor: "#3085d6",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -201,8 +207,14 @@ function CreateEventPage() {
               type="submit"
               className="bg-[#00FFFF] text-black px-4 py-2 rounded-lg flex items-center space-x-2 shadow-md hover:bg-[#00E6E6]"
             >
-              <FiCheckSquare className="text-xl" />
-              <span className="font-semibold">OK</span>
+              {loading ? (
+                <LoadingSpinner />
+              ) : (
+                <>
+                  <FiCheckSquare className="text-xl" />
+                  <span className="font-semibold">OK</span>
+                </>
+              )}
             </button>
           </form>
         </div>

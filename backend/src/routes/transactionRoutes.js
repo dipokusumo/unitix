@@ -11,7 +11,7 @@ transactionRouter.post(
   authorizedRole("customer"),
   transactionController.transaction
 );
-transactionRouter.get(
+transactionRouter.post(
   "/transaction/status",
   auth,
   authorizedRole("customer"),

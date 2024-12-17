@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../layout/CustomerNavbar";
 import { eventApi } from "../api/eventApi";
+import LoadingSpinner from "../component/loadingSpinner";
 
 function EventPage() {
   const [events, setEvents] = useState([]);
@@ -10,6 +11,7 @@ function EventPage() {
   const [availableLocations, setAvailableLocations] = useState([]);
   const [availableDates, setAvailableDates] = useState([]);
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const { state } = useLocation();
   const navigate = useNavigate();
@@ -42,6 +44,8 @@ function EventPage() {
         setAvailableDates(dates);
       } catch (error) {
         console.error("Error fetching events:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -93,18 +97,19 @@ function EventPage() {
   };
 
   return (
-    <div className="bg-[#f0f0f0] min-h-screen overflow-hidden">
+    <div className="bg-[#f0f0f0] min-h-screen">
       <Navbar />
       <div className="p-6">
-        <div className="mb-6 flex justify-evenly items-center">
-          <div className="ml-8">
-            <h1 className="text-2xl font-semibold">
+        {/* Filters Section */}
+        <div className="mb-6 flex flex-col md:flex-row justify-between items-center">
+          <div className="mb-4 md:mb-0">
+            <h1 className="text-xl md:text-2xl font-semibold text-center md:text-left">
               Jelajahi berbagai konser dan acara menarik disini
             </h1>
           </div>
 
-          <div className="relative flex justify-end w-full">
-            <div className="bg-white p-6 rounded-xl shadow-lg w-96">
+          <div className="relative w-full md:w-96">
+            <div className="bg-white p-6 rounded-xl shadow-lg">
               <h3 className="text-lg font-semibold mb-4">Filter Event</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
@@ -178,20 +183,29 @@ function EventPage() {
           </div>
         </div>
 
-        <div className="bg-[#00CCCC] p-6 rounded-xl max-h-[500px] overflow-y-auto scrollbar-hidden">
-          {filteredEvents.length > 0 ? (
+        {/* Event List Section */}
+        <div className="bg-[#00CCCC] p-6 rounded-xl max-h-[600px] overflow-y-auto scrollbar-hidden">
+          {/* Loading Spinner */}
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <LoadingSpinner />
+            </div>
+          ) : filteredEvents.length > 0 ? (
             filteredEvents.map((event) => (
-              <div key={event._id} className="flex space-x-4 mb-4">
+              <div
+                key={event._id}
+                className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-4"
+              >
                 {/* Left Box */}
-                <div className="w-1/3 bg-white h-28 rounded-xl shadow-lg flex">
-                  <div className="w-1/2 bg-gray-200 rounded-l-xl flex items-center justify-center">
+                <div className="w-full sm:w-1/3 bg-white h-40 sm:h-28 rounded-xl shadow-lg flex mb-4 sm:mb-0">
+                  <div className="w-full sm:w-1/2 bg-gray-200 rounded-l-xl flex items-center justify-center">
                     <img
                       src={event.posterUrl}
                       alt="Foto Acara"
                       className="w-full h-full object-cover rounded-l-xl"
                     />
                   </div>
-                  <div className="w-1/2 p-3 flex flex-col justify-center">
+                  <div className="w-full sm:w-1/2 p-3 flex flex-col justify-center">
                     <p className="text-sm font-bold whitespace-pre-wrap">
                       {new Date(event.dateTime)
                         .toLocaleDateString("id-ID", {
@@ -210,18 +224,21 @@ function EventPage() {
                   </div>
                 </div>
 
-                <div className="w-2/3 bg-white h-28 rounded-xl shadow-lg flex">
-                  <div className="p-3 w-3/4">
-                    <p className="text-lg font-bold">{event.name}</p>
-                    <p className="text-sm text-gray-700 mb-2">
+                {/* Right Box */}
+                <div className="w-full sm:w-2/3 bg-white h-40 sm:h-28 rounded-xl shadow-lg flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-0">
+                  <div className="p-3 w-full sm:w-3/4">
+                    <p className="text-lg font-bold text-center sm:text-left">
+                      {event.name}
+                    </p>
+                    <p className="text-sm text-gray-700 mb-2 text-center sm:text-left">
                       {event.location}
                     </p>
-                    <p className="text-sm font-semibold text-[#00CCCC]">
+                    <p className="text-sm font-semibold text-[#00CCCC] text-center sm:text-left">
                       Rp {event.ticketPrice}.00
                     </p>
                   </div>
                   <button
-                    className="bg-[#00DDDD] text-white font-semibold w-1/4 h-full rounded-r-xl hover:bg-[#00FFFF] transition duration-300"
+                    className="bg-[#00DDDD] text-white font-semibold w-full sm:w-1/4 h-full rounded-r-xl hover:bg-[#00FFFF] transition duration-300 mt-4 sm:mt-0"
                     onClick={() => handleEventDetail(event._id)}
                   >
                     Lihat Detail Acara

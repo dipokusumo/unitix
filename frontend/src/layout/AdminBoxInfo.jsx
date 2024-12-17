@@ -3,6 +3,7 @@ import { IoMdPeople } from "react-icons/io";
 import { BiSolidCalendarStar } from "react-icons/bi";
 import { BsTicket } from "react-icons/bs";
 import { userApi } from "../api/userApi";
+import LoadingSpinner from "../component/loadingSpinner";
 
 const EventInfoCard = () => {
   const [info, setInfo] = useState(null);
@@ -22,33 +23,37 @@ const EventInfoCard = () => {
   }, []);
 
   return (
-    info && (
-      <div className="bg-[#00CCCC] p-6 rounded-lg shadow-md mb-6">
-        <div className="grid grid-cols-3 gap-6 text-center">
-          <div className="flex items-center justify-center space-x-4">
-            <IoMdPeople className="text-6xl text-black" />
-            <div>
-              <h3 className="text-lg font-semibold">Total Customer</h3>
-              <p className="text-3xl font-bold">{info.totalCustomers}</p>
+    <div>
+      {!info ? (
+        < LoadingSpinner />
+      ) : (
+        <div className="bg-[#00CCCC] p-6 rounded-lg shadow-md mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+            <div className="flex items-center justify-center space-x-4">
+              <IoMdPeople className="text-6xl text-black" />
+              <div>
+                <h3 className="text-lg font-semibold">Total Customer</h3>
+                <p className="text-3xl font-bold">{info.totalCustomers}</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center justify-center space-x-4">
-            <BsTicket className="text-6xl text-black" />
-            <div>
-              <h3 className="text-lg font-semibold">Ticket Sold</h3>
-              <p className="text-3xl font-bold">{info.totalTickets}</p>
+            <div className="flex items-center justify-center space-x-4">
+              <BsTicket className="text-6xl text-black" />
+              <div>
+                <h3 className="text-lg font-semibold">Ticket Sold</h3>
+                <p className="text-3xl font-bold">{info.totalTickets}</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center justify-center space-x-4">
-            <BiSolidCalendarStar className="text-6xl text-black" />
-            <div>
-              <h3 className="text-lg font-semibold">Total Event</h3>
-              <p className="text-3xl font-bold">{info.totalEvents}</p>
+            <div className="flex items-center justify-center space-x-4">
+              <BiSolidCalendarStar className="text-6xl text-black" />
+              <div>
+                <h3 className="text-lg font-semibold">Total Event</h3>
+                <p className="text-3xl font-bold">{info.totalEvents}</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    )
+      )}
+    </div>
   );
 };
 

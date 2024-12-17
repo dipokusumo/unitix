@@ -8,18 +8,23 @@ import { FaEdit } from "react-icons/fa";
 import { BsTicketPerforatedFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import LoadingSpinner from "../component/loadingSpinner";
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingDelete, setLoadingDelete] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const eventsAdminResponse = await eventApi.getAllAdmin();
         setEvents(eventsAdminResponse);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching data: ", error);
+        setLoading(false);
       }
     };
 
@@ -37,6 +42,7 @@ const AdminDashboardPage = () => {
       confirmButtonText: "Ya, Hapus!",
     }).then(async (result) => {
       if (result.isConfirmed) {
+        setLoadingDelete(event._id);
         try {
           await eventApi.deleteEvent(event._id);
           Swal.fire({
@@ -46,7 +52,7 @@ const AdminDashboardPage = () => {
             confirmButtonText: "OK",
             confirmButtonColor: "#3085d6",
           }).then(() => {
-            window.location.reload();
+            setEvents(events.filter((e) => e._id !== event._id));
           });
         } catch (error) {
           Swal.fire({
@@ -56,6 +62,8 @@ const AdminDashboardPage = () => {
             confirmButtonText: "OK",
             confirmButtonColor: "#3085d6",
           });
+        } finally {
+          setLoadingDelete(null);
         }
       }
     });
@@ -72,7 +80,7 @@ const AdminDashboardPage = () => {
         <EventInfoCard />
 
         {/* Tombol dan daftar acara */}
-        <div className="flex w-full mb-6 items-center justify-between">
+        <div className="flex mb-6 justify-between items-center">
           <button
             onClick={() => navigate("/admin/create-event")}
             className="flex items-center bg-[#00CCCC] text-black p-3 rounded-lg hover:bg-[#00FFFF] space-x-2"
@@ -84,68 +92,81 @@ const AdminDashboardPage = () => {
 
         {/* Daftar acara */}
         <div className="bg-white p-4 rounded-lg shadow-md flex-1 overflow-y-auto">
-          {events.map((event) => (
-            <div
-              key={event._id}
-              className="flex items-center bg-gray-100 p-4 rounded-lg shadow-md mb-4"
-            >
-              <img
-                src={event.posterUrl}
-                alt={event.name}
-                className="w-32 h-32 rounded-lg object-cover"
-              />
-              <div className="ml-4 flex-1">
-                <h3 className="text-lg font-semibold">{event.name}</h3>
-                <div className="flex items-center text-gray-600">
-                  <MdDateRange className="mr-2" />
-                  <span>
-                    {new Date(event.dateTime)
-                      .toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })
-                      .replace(/ /g, "\n")}
-                    {" - "}
-                    {new Date(event.dateTime).toLocaleTimeString("id-ID", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                    {" WIB"}
-                  </span>
-                </div>
-                <div className="flex items-center text-gray-600">
-                  <BsTicketPerforatedFill className="mr-2" />
-                  {event.quota === 0 ? (
-                    <span className="text-red-500 font-semibold">
-                      Tiket Habis Terjual
-                    </span>
-                  ) : (
-                    <span>{event.quota} Tiket Tersedia</span>
-                  )}
-                </div>
-                <p className="text-green-600 font-semibold flex items-center">
-                  Rp {event.ticketPrice}
-                </p>
-              </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => navigate(`/admin/edit-event/${event._id}`)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center"
-                >
-                  <FaEdit className="mr-2" />
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteClick(event)} // Kirim seluruh objek event
-                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center"
-                >
-                  <MdDelete className="mr-2" />
-                  Hapus
-                </button>
-              </div>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+            <LoadingSpinner />
             </div>
-          ))}
+          ) : (
+            events.map((event) => (
+              <div
+                key={event._id}
+                className="flex items-center bg-gray-100 p-4 rounded-lg shadow-md mb-4"
+              >
+                <img
+                  src={event.posterUrl}
+                  alt={event.name}
+                  className="w-32 h-32 rounded-lg object-cover"
+                />
+                <div className="ml-4 flex-1">
+                  <h3 className="text-lg font-semibold">{event.name}</h3>
+                  <div className="flex items-center text-gray-600">
+                    <MdDateRange className="mr-2" />
+                    <span>
+                      {new Date(event.dateTime)
+                        .toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })
+                        .replace(/ /g, "\n")}
+                      {" - "}
+                      {new Date(event.dateTime).toLocaleTimeString("id-ID", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}{" "}
+                      {" WIB"}
+                    </span>
+                  </div>
+                  <div className="flex items-center text-gray-600">
+                    <BsTicketPerforatedFill className="mr-2" />
+                    {event.quota === 0 ? (
+                      <span className="text-red-500 font-semibold">
+                        Tiket Habis Terjual
+                      </span>
+                    ) : (
+                      <span>{event.quota} Tiket Tersedia</span>
+                    )}
+                  </div>
+                  <p className="text-green-600 font-semibold flex items-center">
+                    Rp {event.ticketPrice}
+                  </p>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => navigate(`/admin/edit-event/${event._id}`)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center"
+                  >
+                    <FaEdit className="mr-2" />
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(event)}
+                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center"
+                    disabled={loadingDelete === event._id}
+                  >
+                    {loadingDelete === event._id ? (
+                      <LoadingSpinner />
+                    ) : (
+                      <>
+                        <MdDelete className="mr-2" />
+                        Hapus
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

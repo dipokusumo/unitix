@@ -2,10 +2,10 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const ProfileSidebar = () => {
-  const navigate = useNavigate(); // Hook untuk navigasi
+  const navigate = useNavigate();
 
   return (
-    <div className="w-1/3 bg-gray-100 p-6 rounded-r-xl sm:border-none">
+    <div className="w-full sm:w-1/3 bg-gray-100 p-6 rounded-r-xl sm:border-none">
       <ul className="space-y-4">
         <li>
           <button

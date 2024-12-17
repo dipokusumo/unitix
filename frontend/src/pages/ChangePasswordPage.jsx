@@ -14,12 +14,31 @@ const ChangePassword = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
 
+    // Validasi password
+    if (!oldPassword || !newPassword || !confirmNewPassword) {
+      toast.warn("Harap isi semua field.", {
+        position: "top-right",
+        autoClose: 1500,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      toast.warn("Kata sandi baru dan konfirmasi tidak cocok.", {
+        position: "top-right",
+        autoClose: 1500,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
+      return;
+    }
+
     try {
-      await userApi.changePassword(
-        oldPassword,
-        newPassword,
-        confirmNewPassword
-      );
+      await userApi.changePassword(oldPassword, newPassword, confirmNewPassword);
 
       toast.success("Password berhasil diperbarui!, silahkan login kembali.", {
         position: "top-right",
@@ -28,6 +47,7 @@ const ChangePassword = () => {
         closeOnClick: true,
         pauseOnHover: true,
       });
+
       localStorage.clear();
       navigate("/login");
     } catch (err) {
@@ -45,7 +65,7 @@ const ChangePassword = () => {
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
-      handleUpdate();
+      handleUpdate(event);
     }
   };
 
@@ -53,13 +73,11 @@ const ChangePassword = () => {
     <div className="min-h-screen bg-gray-100">
       <Navbar />
       <div className="max-w-6xl mx-auto py-8 px-4">
-        {/* Header */}
         <h1 className="text-xl font-semibold mb-6">Ubah Kata Sandi</h1>
 
-        <div className="flex">
+        <div className="flex flex-col md:flex-row gap-4">
           {/* Form Ubah Kata Sandi */}
           <div className="flex-1 bg-white rounded-md shadow-lg p-6">
-            {/* Form */}
             <form className="w-full">
               <label
                 htmlFor="oldPassword"
@@ -72,6 +90,7 @@ const ChangePassword = () => {
                 id="oldPassword"
                 value={oldPassword}
                 onChange={(e) => setOldPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00cccc] text-sm"
                 placeholder="Masukkan kata sandi lama"
               />
@@ -87,6 +106,7 @@ const ChangePassword = () => {
                 id="newPassword"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00cccc] text-sm"
                 placeholder="Masukkan kata sandi baru"
               />
@@ -102,6 +122,7 @@ const ChangePassword = () => {
                 id="confirmNewPassword"
                 value={confirmNewPassword}
                 onChange={(e) => setConfirmNewPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00cccc] text-sm"
                 placeholder="Masukkan ulang kata sandi baru"
               />
@@ -117,7 +138,7 @@ const ChangePassword = () => {
             </form>
           </div>
 
-          {/* Navigasi */}
+          {/* Sidebar */}
           <ProfileSidebar />
         </div>
       </div>

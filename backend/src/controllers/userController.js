@@ -235,7 +235,7 @@ const userController = {
       const totalAmountData = await DB.Transaction.aggregate([
         {
           $match: {
-            customerId: customerId,
+            customerId: new mongoose.Types.ObjectId(customerId),
             paymentStatus: "completed",
           },
         },

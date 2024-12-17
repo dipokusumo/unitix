@@ -60,25 +60,13 @@ const deleteEvent = async (id) => {
   return data;
 };
 
-const filter = async (location, date) => {
-  const { data } = await axiosInstance.get(
-    `/events/filter?location=${location}&date=${date}`
-  );
-  return data.data;
-};
-
-const optionFilter = async () => {
-  const { data } = await axiosInstance.get("/events/filter-option");
-  return data.data;
-};
-
 const search = async (keyword) => {
   const { data } = await axiosInstance.get(`/events/search?keyword=${keyword}`);
   return data.data;
 };
 
 const summary = async (id) => {
-  const { data } = await axiosInstance.get(`/events/summary/${id}`, {
+  const { data } = await axiosInstance.get(`/event/summary/${id}`, {
     requiresAuth: true,
   });
   return data.data;
@@ -93,8 +81,6 @@ export const eventApi = {
   createEvent,
   updateEvent,
   deleteEvent,
-  filter,
-  optionFilter,
   search,
   summary,
 };

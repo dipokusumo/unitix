@@ -5,10 +5,12 @@ import Sidebar from "../layout/AdminSidebar";
 import EventInfoCard from "../layout/AdminBoxInfo";
 import { useNavigate } from "react-router-dom";
 import { eventApi } from "../api/eventApi";
+import LoadingSpinner from "../component/loadingSpinner";
 
 function StatistikPenjualanPage() {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -17,6 +19,8 @@ function StatistikPenjualanPage() {
         setEvents(eventsAdminResponse);
       } catch (error) {
         console.error("Error fetching data: ", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -35,49 +39,57 @@ function StatistikPenjualanPage() {
 
         {/* List Event */}
         <div className="bg-white p-4 rounded-lg shadow-md flex-1 overflow-y-auto">
-          {events.map((event) => (
-            <div
-              key={event._id}
-              className="flex items-center bg-gray-100 p-4 rounded-lg shadow-md mb-4"
-            >
-              <img
-                src={event.posterUrl}
-                alt={event.name}
-                className="w-32 h-32 rounded-lg object-cover"
-              />
-              <div className="ml-4 flex-1">
-                <h3 className="text-lg font-semibold">{event.name}</h3>
-                <div className="flex items-center text-gray-600">
-                  <ImLocation className="mr-2" />
-                  <span>{event.location}</span>
-                </div>
-                <div className="flex items-center text-gray-600">
-                  <FaCalendar className="mr-2" />
-                  <span>
-                    {new Date(event.dateTime)
-                      .toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })
-                      .replace(/ /g, "\n")}
-                    {" - "}
-                    {new Date(event.dateTime).toLocaleTimeString("id-ID", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                    {" WIB"}
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={() => navigate(`/admin/statistik-penjualan/${event._id}`)}
-                className="bg-[#00FFFF] text-black px-4 py-2 rounded-full"
-              >
-                Cek Detail
-              </button>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <LoadingSpinner />
             </div>
-          ))}
+          ) : (
+            events.map((event) => (
+              <div
+                key={event._id}
+                className="flex items-center bg-gray-100 p-4 rounded-lg shadow-md mb-4"
+              >
+                <img
+                  src={event.posterUrl}
+                  alt={event.name}
+                  className="w-32 h-32 rounded-lg object-cover"
+                />
+                <div className="ml-4 flex-1">
+                  <h3 className="text-lg font-semibold">{event.name}</h3>
+                  <div className="flex items-center text-gray-600">
+                    <ImLocation className="mr-2" />
+                    <span>{event.location}</span>
+                  </div>
+                  <div className="flex items-center text-gray-600">
+                    <FaCalendar className="mr-2" />
+                    <span>
+                      {new Date(event.dateTime)
+                        .toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })
+                        .replace(/ /g, "\n")}
+                      {" - "}
+                      {new Date(event.dateTime).toLocaleTimeString("id-ID", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                      {" WIB"}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() =>
+                    navigate(`/admin/statistik-penjualan/${event._id}`)
+                  }
+                  className="bg-[#00FFFF] text-black px-4 py-2 rounded-full"
+                >
+                  Cek Detail
+                </button>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

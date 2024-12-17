@@ -10,16 +10,16 @@ import { eventApi } from "../api/eventApi";
 import Navbar from "../layout/CustomerNavbar";
 import { transactionApi } from "../api/transactionApi";
 import { toast } from "react-toastify";
+import LoadingSpinner from "../component/loadingSpinner";
 
 function EventDetailPage() {
   const [event, setEvent] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [totalPrice, setTotalPrice] = useState(0);
   const [overlayVisible, setOverlayVisible] = useState(false);
   const { id } = useParams();
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,7 +29,7 @@ function EventDetailPage() {
         const eventDetail = await eventApi.getEventById(id);
         setEvent(eventDetail);
       } catch (err) {
-        setError(err.message);
+        console.error("Error fetching event detail:", err);
         setEvent(null);
       } finally {
         setLoading(false);
@@ -53,7 +53,9 @@ function EventDetailPage() {
     }
   };
 
-  const handleBuyTicket = async () => {
+  const handleBuyTicket = async (e) => {
+    e.preventDefault();
+
     if (!token) {
       toast.warn("Anda harus login terlebih dahulu untuk membeli.", {
         position: "top-right",
@@ -65,18 +67,22 @@ function EventDetailPage() {
       return;
     }
 
+    setLoading(true);
     try {
       const eventId = event._id;
-      const midtransResponse = await transactionApi.initiateTransaction(eventId, quantity);
+      const midtransResponse = await transactionApi.initiateTransaction(
+        eventId,
+        quantity
+      );
 
       if (!midtransResponse.success) {
-        throw new Error('Failed to create transaction token');
+        throw new Error("Failed to create transaction token");
       }
 
       const snapToken = midtransResponse.data.midtransResponseToken;
 
       if (!snapToken) {
-        alert('Payment token not found. Please try again later.');
+        alert("Payment token not found. Please try again later.");
         return;
       }
 
@@ -84,37 +90,37 @@ function EventDetailPage() {
 
       window.snap.pay(snapToken, {
         onSuccess: (result) => {
-          console.log('Payment Success:', result);
           const transactionId = result.order_id;
-          alert('Payment successful!');
           setOverlayVisible(false);
           navigate("/payment-success/" + transactionId);
         },
         onPending: (result) => {
-          console.log('Payment Pending:', result);
-          alert('Payment is pending!');
+          console.warn("Payment pending:", result);
           setOverlayVisible(false);
+          navigate("/history")
         },
         onError: (result) => {
-          console.log('Payment Error:', result);
           const transactionId = result.order_id;
-          alert('There was an error processing your payment.');
           setOverlayVisible(false);
           navigate("/payment-fail/" + transactionId);
         },
         onClose: () => {
-          console.log('Payment closed by user');
-          alert('Payment was closed before completing.');
           setOverlayVisible(false);
         },
       });
     } catch (error) {
-      alert('Error: ' + error.message);
+      alert("Error: " + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-64">
+        <LoadingSpinner />
+      </div>
+    );
   if (!event) return <p>Event not found</p>;
 
   return (
@@ -123,9 +129,7 @@ function EventDetailPage() {
       <Navbar />
 
       {/* Overlay */}
-      {overlayVisible && (
-        <div className="fixed inset-0 bg-gray-500"></div>
-      )}
+      {overlayVisible && <div className="fixed inset-0 bg-gray-500"></div>}
 
       {/* Poster Acara */}
       <div className="relative w-full h-[50vh]">
@@ -147,7 +151,7 @@ function EventDetailPage() {
         <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black to-transparent text-white">
           <h1 className="text-3xl font-bold mb-4">{event.name}</h1>
 
-          <div className="flex space-x-8">
+          <div className="flex space-x-8 flex-wrap">
             <div className="flex items-center space-x-2">
               <FaMapMarkerAlt className="text-xl" />
               <p className="text-lg font-semibold">{event.location}</p>
@@ -199,14 +203,14 @@ function EventDetailPage() {
         </div>
 
         {/* Deskripsi Acara */}
-        <div className="flex mt-4 space-x-6">
+        <div className="flex mt-4 flex-wrap">
           <div className="flex-1">
             <p className="text-lg font-semibold mb-4">Deskripsi Acara</p>
             <p className="text-sm text-gray-700">{event.description}</p>
           </div>
 
           {/* Kolom Pembelian Tiket */}
-          <div className="w-1/4 bg-white p-4 rounded-md shadow-lg ml-6 flex flex-col">
+          <div className="w-full sm:w-1/4 bg-white p-4 rounded-md shadow-lg mt-4 sm:mt-0 mx-4 sm:mx-auto flex flex-col">
             <div className="flex justify-between mb-4">
               <p className="text-sm font-semibold text-gray-600">Harga</p>
               <p className="text-sm font-semibold text-gray-900">

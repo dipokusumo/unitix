@@ -23,6 +23,7 @@ import StatistikPenjualanPage from './pages/StatistikPenjualanPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import DashboardPage from './pages/DashboardPage';
+import Checkin from './pages/Checkin';
 
 const App = () => {
   return (
@@ -48,8 +49,8 @@ const App = () => {
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/profile" element={<EditProfilePage />} />
           <Route path="/profile/change-password" element={<ChangePassword />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/payment-fail" element={<PaymentFail />} />
+          <Route path="/payment-success/:transactionId" element={<PaymentSuccess />} />
+          <Route path="/payment-fail/:transactionId" element={<PaymentFail />} />
         </Route>
 
         {/* Rute untuk Admin */}
@@ -67,6 +68,7 @@ const App = () => {
           <Route path="statistik-penjualan" element={<StatistikPenjualanPage />} />
           <Route path="statistik-penjualan/:eventId" element={<DetailStatistik />} />
           <Route path="kelola-pengguna" element={<KelolaPenggunaPage />} />
+          <Route path="checkin-qrcode" element={<Checkin />} />
         </Route>
       </Routes>
       <ToastContainer />

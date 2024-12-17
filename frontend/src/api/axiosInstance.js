@@ -21,7 +21,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      alert("Anda tidak memiliki izin untuk mengakses halaman ini.");
+      console.error("Unauthorized");
     }
     return Promise.reject(error);
   }

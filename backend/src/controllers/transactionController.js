@@ -283,31 +283,35 @@ const transactionController = {
   async validateQRCode(req, res) {
     try {
       const { ticketCode } = req.body;
-
+  
       if (!ticketCode) {
-        return ResponseAPI.badRequest(res, "Ticket code is required");
+        return ResponseAPI.badRequest(res, "Kode tiket wajib diisi");
       }
-
+  
       const ticket = await DB.Ticket.findOne({ ticketCode });
       if (!ticket) {
-        return ResponseAPI.notFound(res, "Ticket not found");
+        return ResponseAPI.notFound(res, `Tiket dengan kode '${ticketCode}' tidak ditemukan`);
       }
-
+  
       const checkin = await DB.Checkin.findOne({ ticketId: ticket._id });
       if (checkin && checkin.isCheckin) {
-        return ResponseAPI.conflict(res, "Ticket already checked in");
+        return ResponseAPI.conflict(res, `Tiket dengan kode '${ticketCode}' sudah melakukan check-in sebelumnya`);
       }
-
+  
       await DB.Checkin.create({
         ticketId: ticket._id,
         checkinTime: new Date(),
         isCheckin: true,
       });
-
-      return ResponseAPI.success(res, null, "Ticket validated successfully");
+  
+      return ResponseAPI.success(
+        res,
+        null,
+        `Tiket dengan kode '${ticketCode}' berhasil divalidasi`
+      );
     } catch (error) {
-      console.error("Error validating QR code:", error);
-      return ResponseAPI.serverError(res, error);
+      console.error("Terjadi kesalahan saat validasi QR code:", error);
+      return ResponseAPI.serverError(res, `Kesalahan server: ${error.message}`);
     }
   },
 };

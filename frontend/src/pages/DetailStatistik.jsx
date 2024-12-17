@@ -5,15 +5,18 @@ import { useParams } from "react-router-dom";
 import Sidebar from "../layout/AdminSidebar";
 import EventInfoCard from "../layout/AdminBoxInfo";
 import { eventApi } from "../api/eventApi";
+import LoadingSpinner from "../component/loadingSpinner";
 
 function DetailStatistik() {
   const { eventId } = useParams();
   const [event, setEvent] = useState(null);
   const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchEventDetail = async () => {
       try {
+        setLoading(true);
         const eventDetail = await eventApi.getEventById(eventId);
         setEvent(eventDetail);
 
@@ -22,6 +25,8 @@ function DetailStatistik() {
       } catch (error) {
         console.error("Error fetching event data: ", error);
         setSummary(null);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -40,8 +45,10 @@ function DetailStatistik() {
 
         {/* Detail Event */}
         <div className="bg-white p-4 rounded-lg shadow-md flex-1">
-          {!event ? (
-            <p>Loading...</p>
+          {loading || !event ? (
+            <div className="flex justify-center items-center h-64">
+              <LoadingSpinner />
+            </div>
           ) : (
             <div className="flex items-center bg-gray-100 p-4 rounded-lg shadow-md">
               {/* Gambar dan Informasi Acara */}
@@ -81,7 +88,7 @@ function DetailStatistik() {
 
         {/* Statistik */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          {!summary ? (
+          {loading || !summary ? (
             <div className="grid grid-cols-2 gap-4">
               <div className="p-8">
                 <h3 className="text-lg">Pesanan</h3>
@@ -92,7 +99,7 @@ function DetailStatistik() {
                 <p className="text-2xl font-bold">Rp 0.00</p>
               </div>
               <div className="p-8">
-                <h3 className="text-lg">Total Pengunjung</h3>
+                <h3 className="text-lg">Tiket Terjual</h3>
                 <p className="text-2xl font-bold">0</p>
               </div>
             </div>
@@ -100,15 +107,15 @@ function DetailStatistik() {
             <div className="grid grid-cols-2 gap-4">
               <div className="p-8">
                 <h3 className="text-lg">Pesanan</h3>
-                <p className="text-2xl font-bold">{summary.totalTransactions}</p>
+                <p className="text-2xl font-bold">{summary[0]?.totalTransactions || 0}</p>
               </div>
               <div className="p-8">
                 <h3 className="text-lg">Pendapatan</h3>
-                <p className="text-2xl font-bold">{summary.totalRevenue}</p>
+                <p className="text-2xl font-bold">Rp {summary[0]?.totalRevenue || 0}.00</p>
               </div>
               <div className="p-8">
-                <h3 className="text-lg">Total Pengunjung</h3>
-                <p className="text-2xl font-bold">{summary.totalTickets}</p>
+                <h3 className="text-lg">Tiket Terjual</h3>
+                <p className="text-2xl font-bold">{summary[0]?.totalTickets || 0}</p>
               </div>
             </div>
           )}

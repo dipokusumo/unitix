@@ -18,13 +18,13 @@ const getTransactionHistory = async () => {
   return data.data;
 };
 
-const midtransStatusCallback = async (transactionId) => {
-  const { data } = await axiosInstance.get(
+const midtransStatusCallback = async (transaction_id) => {
+  const { data } = await axiosInstance.post(
     "/transaction/status",
-    { transactionId },
+    { transaction_id },
     {
       requiresAuth: true,
-    }
+    },
   );
   return data.data;
 };

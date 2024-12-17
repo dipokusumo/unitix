@@ -87,7 +87,8 @@ const EditProfilePage = () => {
       <Navbar />
       <div className="max-w-6xl mx-auto py-8 px-4">
         <h1 className="text-xl font-semibold mb-6">Edit Profil</h1>
-        <div className="flex">
+        <div className="flex flex-col md:flex-row gap-4">
+          {/* Form */}
           <div className="flex-1 bg-white rounded-md shadow-lg p-6">
             <div className="relative w-32 h-32 mx-auto mt-4">
               <img
@@ -139,6 +140,7 @@ const EditProfilePage = () => {
               </button>
             </form>
           </div>
+
           <ProfileSidebar />
         </div>
       </div>
