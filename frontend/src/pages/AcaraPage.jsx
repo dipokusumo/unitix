@@ -1,155 +1,237 @@
-import React, { useState, useEffect } from 'react';
-import { FaSortDown, FaHeart } from 'react-icons/fa';
-import Navbar from '../layout/CustomerNavbar'; // Pastikan path file ini sesuai
-import axios from 'axios'; // Impor axios untuk HTTP requests
-import { useNavigate } from 'react-router-dom'; // Import useNavigate untuk navigasi
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import Navbar from "../layout/CustomerNavbar";
+import { eventApi } from "../api/eventApi";
 
 function EventPage() {
-  const [showSortOptions, setShowSortOptions] = useState(false);
-  const [selectedOption, setSelectedOption] = useState('Pilih');
   const [events, setEvents] = useState([]);
-  const [sortedEvents, setSortedEvents] = useState([]);
-  const [likedEvents, setLikedEvents] = useState({});
-  const navigate = useNavigate(); // Inisialisasi navigate
+  const [filteredEvents, setFilteredEvents] = useState([]);
+  const [filters, setFilters] = useState({ location: "", date: "" });
+  const [availableLocations, setAvailableLocations] = useState([]);
+  const [availableDates, setAvailableDates] = useState([]);
+  const [isSearchActive, setIsSearchActive] = useState(false);
 
-  const handleOptionClick = (option) => {
-    setSelectedOption(option);
-    setShowSortOptions(false);
-
-    let sortedData = [...events];
-    if (option === 'Lokasi') {
-      sortedData.sort((a, b) => a.location.localeCompare(b.location));
-    } else if (option === 'Tanggal') {
-      sortedData.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
-    }
-
-    setSortedEvents(sortedData);
-  };
-
-  const toggleLike = (eventId) => {
-    setLikedEvents((prev) => ({
-      ...prev,
-      [eventId]: !prev[eventId],
-    }));
-  };
-
-  const handleBuyTicket = (event) => {
-    // Arahkan ke halaman detail dengan data acara
-    console.log(event);
-    navigate(`/detail/${event._id}`, { state: event });
-  };
+  const { state } = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/events')
-      .then((response) => {
-        console.log(response.data);
-        if (response.data.success) {
-          setEvents(response.data.data);
-          setSortedEvents(response.data.data); // Inisialisasi sortedEvents dengan data asli
+    const fetchData = async () => {
+      try {
+        const allEvents = await eventApi.getAll();
+
+        setEvents(allEvents);
+        if (state?.searchResults) {
+          setFilteredEvents(state.searchResults);
+          setIsSearchActive(true);
+        } else {
+          setFilteredEvents(allEvents);
         }
-      })
-      .catch((error) => {
-        console.error('Error fetching events:', error);
-      });
-  }, []);
+
+        const locations = [
+          ...new Set(allEvents.map((event) => event.location)),
+        ];
+        setAvailableLocations(locations);
+
+        const dates = [
+          ...new Set(
+            allEvents.map(
+              (event) => new Date(event.dateTime).toISOString().split("T")[0]
+            )
+          ),
+        ];
+        setAvailableDates(dates);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    };
+
+    fetchData();
+  }, [state]);
+
+  useEffect(() => {
+    const applyFilters = () => {
+      let filtered = state?.searchResults || events;
+
+      if (filters.location) {
+        filtered = filtered.filter(
+          (event) => event.location === filters.location
+        );
+      }
+
+      if (filters.date) {
+        filtered = filtered.filter((event) => {
+          const eventDate = new Date(event.dateTime)
+            .toISOString()
+            .split("T")[0];
+          return eventDate === filters.date;
+        });
+      }
+
+      setFilteredEvents(filtered);
+    };
+
+    applyFilters();
+  }, [filters, events, state]);
+
+  const handleFilterChange = (event) => {
+    const { name, value } = event.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleResetSearch = () => {
+    setFilteredEvents(events);
+    setIsSearchActive(false);
+  };
+
+  const handleResetFilters = () => {
+    setFilters({ location: "", date: "" });
+    setFilteredEvents(events);
+  };
+
+  const handleEventDetail = (eventId) => {
+    navigate(`/event-detail/${eventId}`);
+  };
 
   return (
-    <div className="bg-[#f0f0f0] min-h-screen">
-      {/* Navbar */}
+    <div className="bg-[#f0f0f0] min-h-screen overflow-hidden">
       <Navbar />
-
       <div className="p-6">
-        {/* Heading */}
-        <div className="mb-6 ml-8">
-          <h1 className="text-2xl font-semibold">Jelajahi berbagai konser dan</h1>
-          <h1 className="text-2xl font-semibold">acara menarik disini</h1>
-        </div>
-
-        
-        <div className="bg-[#00CCCC] p-6 rounded-xl max-h-[500px] overflow-y-auto scrollbar-hidden">
-          
-          <div className="relative mb-4 flex justify-center">
-            <button
-              className="flex items-center bg-white text-black px-3 py-1.5 rounded-xl shadow hover:bg-gray-200"
-              onClick={() => setShowSortOptions(!showSortOptions)}
-            >
-              <span className="font-semibold mr-2 text-sm">Urutkan: {selectedOption}</span>
-              <FaSortDown />
-            </button>
-            {showSortOptions && (
-              <div className="absolute top-full mt-2 bg-white shadow-lg rounded-md w-32">
-                <button
-                  className="block px-3 py-1 w-full text-left text-sm hover:bg-gray-100"
-                  onClick={() => handleOptionClick('Lokasi')}
-                >
-                  Lokasi
-                </button>
-                <button
-                  className="block px-3 py-1 w-full text-left text-sm hover:bg-gray-100"
-                  onClick={() => handleOptionClick('Tanggal')}
-                >
-                  Tanggal
-                </button>
-              </div>
-            )}
+        <div className="mb-6 flex justify-evenly items-center">
+          <div className="ml-8">
+            <h1 className="text-2xl font-semibold">
+              Jelajahi berbagai konser dan acara menarik disini
+            </h1>
           </div>
 
-          {/* Daftar Acara */}
-          {sortedEvents.map((event) => (
-            <div key={event._id} className="flex space-x-4 mb-4">
-              {/* Kotak kiri */}
-              <div className="w-1/3 bg-white h-28 rounded-xl shadow-lg flex">
-                <div className="w-1/2 bg-gray-200 rounded-l-xl flex items-center justify-center">
-                  <img
-                    src={event.posterUrl}
-                    alt="Foto Acara"
-                    className="w-full h-full object-cover rounded-l-xl"
-                  />
+          <div className="relative flex justify-end w-full">
+            <div className="bg-white p-6 rounded-xl shadow-lg w-96">
+              <h3 className="text-lg font-semibold mb-4">Filter Event</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label
+                    className="block text-sm font-medium text-gray-700"
+                    htmlFor="location"
+                  >
+                    Lokasi
+                  </label>
+                  <select
+                    id="location"
+                    name="location"
+                    value={filters.location}
+                    onChange={handleFilterChange}
+                    className="block w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                  >
+                    <option value="">Semua Lokasi</option>
+                    {availableLocations.map((location, index) => (
+                      <option key={index} value={location}>
+                        {location}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <div className="w-1/2 p-3 flex flex-col justify-center">
-                  <p className="text-sm font-bold whitespace-pre-wrap">
-                    {new Date(event.dateTime)
-                      .toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })
-                      .replace(/ /g, '\n')}
-                  </p>
-                  <p className="text-xs font-medium text-gray-600">
-                    {new Date(event.dateTime).toLocaleTimeString('id-ID', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </p>
+
+                <div>
+                  <label
+                    className="block text-sm font-medium text-gray-700"
+                    htmlFor="date"
+                  >
+                    Tanggal
+                  </label>
+                  <select
+                    id="date"
+                    name="date"
+                    value={filters.date}
+                    onChange={handleFilterChange}
+                    className="block w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                  >
+                    <option value="">Semua Tanggal</option>
+                    {availableDates.map((date, index) => (
+                      <option key={index} value={date}>
+                        {new Date(date).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
-              {/* Kotak kanan */}
-              <div className="w-2/3 bg-white h-28 rounded-xl shadow-lg flex">
-                <div className="p-3 w-3/4">
-                  <p className="text-lg font-bold">{event.name}</p>
-                  <p className="text-sm text-gray-700 mb-2">{event.location}</p>
-                  <p className="text-sm font-semibold text-[#00FFFF]">
-                    Rp {event.ticketPrice.toLocaleString()}
-                  </p>
-                  <FaHeart
-                    className={`cursor-pointer ml-[520px] ${
-                      likedEvents[event._id] ? 'text-red-500' : 'text-gray-400'
-                    }`}
-                    onClick={() => toggleLike(event._id)}
-                  />
-                </div>
+              <div className="absolute top-5 right-6 flex space-x-2">
                 <button
-                  className="bg-[#00FFFF] text-black w-1/4 h-full rounded-r-xl hover:bg-teal-400 text-sm"
-                  onClick={() => handleBuyTicket(event)}
+                  onClick={handleResetFilters}
+                  className="px-4 py-2 bg-gray-300 rounded-md text-sm hover:bg-gray-400"
                 >
-                  Beli Tiket
+                  Reset Filter
                 </button>
+                {isSearchActive ? (
+                  <button
+                    onClick={handleResetSearch}
+                    className="px-4 py-2 bg-gray-300 rounded-md text-sm hover:bg-gray-400"
+                  >
+                    Reset Search
+                  </button>
+                ) : null}
               </div>
             </div>
-          ))}
+          </div>
+        </div>
+
+        <div className="bg-[#00CCCC] p-6 rounded-xl max-h-[500px] overflow-y-auto scrollbar-hidden">
+          {filteredEvents.length > 0 ? (
+            filteredEvents.map((event) => (
+              <div key={event._id} className="flex space-x-4 mb-4">
+                {/* Left Box */}
+                <div className="w-1/3 bg-white h-28 rounded-xl shadow-lg flex">
+                  <div className="w-1/2 bg-gray-200 rounded-l-xl flex items-center justify-center">
+                    <img
+                      src={event.posterUrl}
+                      alt="Foto Acara"
+                      className="w-full h-full object-cover rounded-l-xl"
+                    />
+                  </div>
+                  <div className="w-1/2 p-3 flex flex-col justify-center">
+                    <p className="text-sm font-bold whitespace-pre-wrap">
+                      {new Date(event.dateTime)
+                        .toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })
+                        .replace(/ /g, "\n")}
+                    </p>
+                    <p className="text-xs font-medium text-gray-600">
+                      {new Date(event.dateTime).toLocaleTimeString("id-ID", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="w-2/3 bg-white h-28 rounded-xl shadow-lg flex">
+                  <div className="p-3 w-3/4">
+                    <p className="text-lg font-bold">{event.name}</p>
+                    <p className="text-sm text-gray-700 mb-2">
+                      {event.location}
+                    </p>
+                    <p className="text-sm font-semibold text-[#00CCCC]">
+                      Rp {event.ticketPrice}.00
+                    </p>
+                  </div>
+                  <button
+                    className="bg-[#00DDDD] text-white font-semibold w-1/4 h-full rounded-r-xl hover:bg-[#00FFFF] transition duration-300"
+                    onClick={() => handleEventDetail(event._id)}
+                  >
+                    Lihat Detail Acara
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-600">Tidak ada acara ditemukan.</p>
+          )}
         </div>
       </div>
     </div>

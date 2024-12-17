@@ -15,13 +15,6 @@ const PaymentSuccess = () => {
       <p className="text-sm text-gray-600 mb-6">
         Terima kasih telah menggunakan layanan Unitix
       </p>
-
-      {/* Tombol Back */}
-      <button
-        className="px-6 py-2 border border-gray-400 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition"
-      >
-        Kembali ke Dashboard
-      </button>
     </div>
   );
 };

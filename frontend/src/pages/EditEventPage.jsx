@@ -1,88 +1,158 @@
-import React, { useState } from "react";
-import { IoMdPeople } from "react-icons/io";
-import { IoPeopleCircle } from "react-icons/io5";
-import { BiSolidCalendarStar } from "react-icons/bi";
+import React, { useState, useEffect } from "react";
 import { FiCheckSquare } from "react-icons/fi";
+import { useParams } from "react-router-dom";
 import { LuImagePlus } from "react-icons/lu";
 import Sidebar from "../layout/AdminSidebar";
+import EventInfoCard from "../layout/AdminBoxInfo";
+import { eventApi } from "../api/eventApi";
+import Swal from "sweetalert2";
 
 function EditEventPage() {
-  const [showPopup, setShowPopup] = useState(false); // State untuk mengontrol pop-up
+  const { eventId } = useParams();
+  const [eventData, setEventData] = useState({
+    name: "",
+    dateTime: "",
+    location: "",
+    description: "",
+    quota: "",
+    ticketPrice: "",
+    eventBy: "",
+    posterUrl: "",
+  });
+  const [imagePreview, setImagePreview] = useState(""); 
+  const [posterUrl, setPosterUrl] = useState(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Mencegah reload halaman
-    setShowPopup(true); // Tampilkan pop-up
+  const formatDateTime = (date) => {
+    const localDate = new Date(date);
+    const year = localDate.getFullYear();
+    const month = String(localDate.getMonth() + 1).padStart(2, '0');
+    const day = String(localDate.getDate()).padStart(2, '0');
+    const hours = String(localDate.getHours()).padStart(2, '0');
+    const minutes = String(localDate.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
-  const closePopup = () => {
-    setShowPopup(false); // Sembunyikan pop-up
+  useEffect(() => {
+    const fetchEventDetail = async () => {
+      try {
+        const eventDetail = await eventApi.getEventById(eventId);
+        setEventData(eventDetail);
+        if (eventDetail.posterUrl) {
+          setImagePreview(eventDetail.posterUrl);
+        }
+      } catch (error) {
+        console.error("Error fetching event data: ", error);
+      }
+    };
+
+    fetchEventDetail();
+  }, [eventId]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEventData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setPosterUrl(file);
+      const previewURL = URL.createObjectURL(file);
+      setImagePreview(previewURL);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!posterUrl) {
+      return Swal.fire({
+        title: "Error!",
+        text: "Harap unggah gambar untuk acara.",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#3085d6",
+      });
+    }
+
+    try {
+      await eventApi.updateEvent(eventId, {
+        ...eventData,
+        posterUrl: posterUrl ? posterUrl : eventData.posterUrl,
+      });
+
+      Swal.fire({
+        title: "Sukses!",
+        text: "Acara berhasil diperbarui.",
+        icon: "success",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#3085d6",
+      });
+    } catch (error) {
+      Swal.fire({
+        title: "Error!",
+        text: error.response.data.message,
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#3085d6",
+      });
+    }
   };
 
   return (
     <div className="flex h-screen">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col p-6">
-        {/* Kotak informasi */}
-        <div className="bg-[#00CCCC] p-6 rounded-lg shadow-md mb-6">
-          <div className="grid grid-cols-3 gap-6 text-center">
-            <div className="flex items-center justify-center space-x-4">
-              <IoMdPeople className="text-6xl text-black" />
-              <div>
-                <h3 className="text-lg font-semibold">Total Customer</h3>
-                <p className="text-3xl font-bold">200</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-center space-x-4">
-              <IoPeopleCircle className="text-6xl text-black" />
-              <div>
-                <h3 className="text-lg font-semibold">Member</h3>
-                <p className="text-3xl font-bold">80</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-center space-x-4">
-              <BiSolidCalendarStar className="text-6xl text-black" />
-              <div>
-                <h3 className="text-lg font-semibold">Total Event</h3>
-                <p className="text-3xl font-bold">7</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="flex-1 flex flex-col p-6 bg-gray-50">
+        <EventInfoCard />
 
-        <div className="bg-white p-4 rounded-lg shadow-md flex-1 flex flex-col items-center justify-center space-y-6">
-          <form className="w-full max-w-max space-y-4" onSubmit={handleSubmit}>
-            <div className="flex items-start ">
-              <label className="cursor-pointer w-64 h-64 flex items-center justify-center bg-gray-200 rounded-lg border border-gray-300">
-                <LuImagePlus className="w-32 h-32" />
-              </label>
-              <input />
-
-              {/* Tombol OK Simpan Acara */}
-              <button
-                type="submit"
-                className="bg-[#00FFFF] text-black px-4 py-2 rounded-lg flex items-center space-x-2 shadow-md hover:bg-[#00E6E6]"
+        <div className="bg-white p-4 rounded-lg shadow-md flex-1 flex flex-col items-center space-y-6 overflow-y-auto">
+          <form className="w-full max-w-lg space-y-4" onSubmit={handleSubmit}>
+            <div className="flex flex-col items-center space-y-2">
+              <label
+                htmlFor="posterUrl"
+                className="cursor-pointer w-64 h-64 flex items-center justify-center bg-gray-200 rounded-lg border border-gray-300 relative"
               >
-                <FiCheckSquare className="text-xl" />
-                <span className="font-semibold">OK</span>
-              </button>
+                {imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt="Preview Gambar"
+                    className="absolute inset-0 object-cover w-full h-full rounded-lg"
+                  />
+                ) : (
+                  <LuImagePlus className="w-32 h-32 text-gray-500" />
+                )}
+              </label>
+              <input
+                type="file"
+                id="posterUrl"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoUpload}
+              />
             </div>
 
             <div>
               <label className="block text-sm font-medium">Nama Acara</label>
-              <input className="w-full p-3 border border-gray-300 rounded-lg" />
+              <input
+                name="name"
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                value={eventData.name}
+                onChange={handleChange}
+              />
             </div>
 
             <div>
-              <label className="block text-sm font-medium">
-                Hari dan Tanggal
-              </label>
+              <label className="block text-sm font-medium">Hari dan Tanggal</label>
               <input
-                type="date"
-                name="date"
+                type="datetime-local"
+                name="dateTime"
                 className="w-full p-3 border border-gray-300 rounded-lg"
+                value={formatDateTime(eventData.dateTime)}
+                onChange={handleChange}
               />
             </div>
 
@@ -92,6 +162,8 @@ function EditEventPage() {
                 type="text"
                 name="location"
                 className="w-full p-3 border border-gray-300 rounded-lg"
+                value={eventData.location}
+                onChange={handleChange}
               />
             </div>
 
@@ -100,7 +172,9 @@ function EditEventPage() {
               <textarea
                 name="description"
                 className="w-full p-3 border border-gray-300 rounded-lg"
-              ></textarea>
+                value={eventData.description}
+                onChange={handleChange}
+              />
             </div>
 
             <div>
@@ -109,6 +183,8 @@ function EditEventPage() {
                 type="number"
                 name="quota"
                 className="w-full p-3 border border-gray-300 rounded-lg"
+                value={eventData.quota}
+                onChange={handleChange}
               />
             </div>
 
@@ -116,39 +192,33 @@ function EditEventPage() {
               <label className="block text-sm font-medium">Harga Tiket</label>
               <input
                 type="number"
-                name="price"
+                name="ticketPrice"
                 className="w-full p-3 border border-gray-300 rounded-lg"
+                value={eventData.ticketPrice}
+                onChange={handleChange}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium">
-                Nama Penyelenggara
-              </label>
+              <label className="block text-sm font-medium">Nama Penyelenggara</label>
               <input
                 type="text"
                 name="eventBy"
                 className="w-full p-3 border border-gray-300 rounded-lg"
+                value={eventData.eventBy}
+                onChange={handleChange}
               />
             </div>
+
+            <button
+              type="submit"
+              className="bg-[#00FFFF] text-black px-4 py-2 rounded-lg flex items-center space-x-2 shadow-md hover:bg-[#00E6E6]"
+            >
+              <FiCheckSquare className="text-xl" />
+              <span className="font-semibold">OK</span>
+            </button>
           </form>
         </div>
-        {showPopup && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg text-center space-y-4">
-              <FiCheckSquare className="text-4xl text-green-500 mx-auto" />
-              <p className="text-lg font-semibold">
-                Acara telah berhasil diperbarui!
-              </p>
-              <button
-                onClick={closePopup}
-                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
-              >
-                Lanjut
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

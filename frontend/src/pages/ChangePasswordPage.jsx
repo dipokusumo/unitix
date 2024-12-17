@@ -1,17 +1,51 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../layout/CustomerNavbar";
 import ProfileSidebar from "../layout/ProfileSidebar";
+import { userApi } from "../api/userApi";
+import { toast } from "react-toastify";
 
 const ChangePassword = () => {
-  const [email, setEmail] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleUpdate = () => {
-    if (newPassword !== confirmPassword) {
-      alert("Kata sandi baru dan konfirmasi kata sandi tidak cocok!");
-    } else {
-      alert(`Kata sandi berhasil diperbarui untuk email: ${email}`);
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+
+    try {
+      await userApi.changePassword(
+        oldPassword,
+        newPassword,
+        confirmNewPassword
+      );
+
+      toast.success("Password berhasil diperbarui!, silahkan login kembali.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
+      localStorage.clear();
+      navigate("/login");
+    } catch (err) {
+      const errorMessage = err.response?.data?.message;
+
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 1500,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+      });
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleUpdate();
     }
   };
 
@@ -27,16 +61,19 @@ const ChangePassword = () => {
           <div className="flex-1 bg-white rounded-md shadow-lg p-6">
             {/* Form */}
             <form className="w-full">
-              <label htmlFor="email" className="block text-gray-700 font-medium mb-2 text-sm">
-                Email
+              <label
+                htmlFor="oldPassword"
+                className="block text-gray-700 font-medium mb-2 text-sm"
+              >
+                Kata Sandi Lama
               </label>
               <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="password"
+                id="oldPassword"
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00cccc] text-sm"
-                placeholder="Masukkan email"
+                placeholder="Masukkan kata sandi lama"
               />
 
               <label
@@ -55,16 +92,16 @@ const ChangePassword = () => {
               />
 
               <label
-                htmlFor="confirmPassword"
+                htmlFor="confirmNewPassword"
                 className="block text-gray-700 font-medium mb-2 mt-4 text-sm"
               >
                 Konfirmasi Kata Sandi Baru
               </label>
               <input
                 type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                id="confirmNewPassword"
+                value={confirmNewPassword}
+                onChange={(e) => setConfirmNewPassword(e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00cccc] text-sm"
                 placeholder="Masukkan ulang kata sandi baru"
               />
@@ -72,6 +109,7 @@ const ChangePassword = () => {
               <button
                 type="button"
                 onClick={handleUpdate}
+                onKeyDown={handleKeyDown}
                 className="w-full mt-4 bg-[#00ffff] text-gray-800 py-1 rounded-md text-sm hover:bg-teal-600 transition"
               >
                 Perbarui
