@@ -17,8 +17,9 @@ function EventDetailPage() {
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [overlayVisible, setOverlayVisible] = useState(false);
   const { id } = useParams();
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,24 +64,52 @@ function EventDetailPage() {
       });
       return;
     }
-  
+
     try {
       const eventId = event._id;
-      const response = await transactionApi.initiateTransaction(eventId, quantity);
-  
-      if (!response.success || !response.data || !response.data.transaction.paymentLink) {
-        throw new Error("Failed to create transaction. Please try again.");
+      const midtransResponse = await transactionApi.initiateTransaction(eventId, quantity);
+
+      if (!midtransResponse.success) {
+        throw new Error('Failed to create transaction token');
       }
-  
-      const paymentLink = response.data.transaction.paymentLink;
-  
-      // Buka tab baru ke URL pembayaran Midtrans
-      window.open(paymentLink, "_blank");
-  
-      // Redirect ke halaman history setelah proses pembayaran dimulai
-      navigate("/history");
+
+      const snapToken = midtransResponse.data.midtransResponseToken;
+
+      if (!snapToken) {
+        alert('Payment token not found. Please try again later.');
+        return;
+      }
+
+      setOverlayVisible(true);
+
+      window.snap.pay(snapToken, {
+        onSuccess: (result) => {
+          console.log('Payment Success:', result);
+          const transactionId = result.order_id;
+          alert('Payment successful!');
+          setOverlayVisible(false);
+          navigate("/payment-success/" + transactionId);
+        },
+        onPending: (result) => {
+          console.log('Payment Pending:', result);
+          alert('Payment is pending!');
+          setOverlayVisible(false);
+        },
+        onError: (result) => {
+          console.log('Payment Error:', result);
+          const transactionId = result.order_id;
+          alert('There was an error processing your payment.');
+          setOverlayVisible(false);
+          navigate("/payment-fail/" + transactionId);
+        },
+        onClose: () => {
+          console.log('Payment closed by user');
+          alert('Payment was closed before completing.');
+          setOverlayVisible(false);
+        },
+      });
     } catch (error) {
-      alert("Error: " + error.message);
+      alert('Error: ' + error.message);
     }
   };
 
@@ -92,6 +121,11 @@ function EventDetailPage() {
     <div className="bg-[#f0f0f0] min-h-screen flex flex-col">
       {/* Navbar */}
       <Navbar />
+
+      {/* Overlay */}
+      {overlayVisible && (
+        <div className="fixed inset-0 bg-gray-500"></div>
+      )}
 
       {/* Poster Acara */}
       <div className="relative w-full h-[50vh]">

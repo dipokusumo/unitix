@@ -89,7 +89,7 @@ function DashboardPage() {
           </section>
         )}
 
-        <section className="py-12 max-w-screen-xl mx-auto">
+        <section className="py-10 max-w-screen-xl mx-auto">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">
             Upcoming Events
           </h2>

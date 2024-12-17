@@ -37,7 +37,7 @@ userRouter.get(
 userRouter.get(
   "/user/box-info",
   auth,
-  authorizedRole("user"),
+  authorizedRole("customer"),
   userController.getUserBoxInfo
 );
 userRouter.delete(

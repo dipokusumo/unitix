@@ -82,6 +82,7 @@ const transactionController = {
       };
 
       const midtransResponse = await snap.createTransaction(transactionPayload);
+      const midtransResponseToken = await snap.createTransactionToken(transactionPayload)
 
       transaction.paymentLink = midtransResponse.redirect_url;
       await transaction.save();
@@ -89,7 +90,7 @@ const transactionController = {
       return ResponseAPI.success(
         res,
         {
-          transaction,
+          transaction, midtransResponseToken
         },
         "Transaction successfully processed"
       );

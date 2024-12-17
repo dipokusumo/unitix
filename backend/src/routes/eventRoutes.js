@@ -36,9 +36,13 @@ eventRouter.delete(
   authorizedRole("admin"),
   eventController.delete
 );
-eventRouter.get("/events/option-filter", eventController.getFilterOptions);
-eventRouter.get("/events/filter", eventController.getEventsByFilter);
 eventRouter.get("/events/search", eventController.search);
+eventRouter.get(
+  "/event/summary/:eventId",
+  auth,
+  authorizedRole("admin"),
+  eventController.getTransactionSummaryByEvent
+);
 eventRouter.get(
   "/event/summary/:eventId",
   auth,

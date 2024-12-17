@@ -15,6 +15,10 @@ app.use(morgan("dev"));
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.send("Server is up and running!");
+});
+
 app.use("/api", routes);
 
 app.use(errorHandler);

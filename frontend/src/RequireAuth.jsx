@@ -3,8 +3,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import PropTypes from "prop-types";
 
 const RequireAuth = ({ role }) => {
-  // Cek token di localStorage dan sessionStorage
-  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
 
   if (!token) {
