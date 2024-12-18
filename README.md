@@ -81,7 +81,8 @@ https://www.postman.com/unitix/unitix/collection/ofxvkms/unitix?action=share&cre
 Link postman sudah berisi variabel url yang terhubung ke link deploy backend, harap ganti ke endpoint lokal untuk menjalankan nya secara lokal.
 di postman sudah lengkap endpoint api nya, serta authorization dan body pada masing masing endpoint yang membutuhkan. 
 
-Notes: Fork collection link postman nya dan perhatikan authorization dan body pada setiap api 
+Notes: Fork collection link postman nya dan perhatikan authorization dan body pada setiap api.
+
 ---
 
 Made by Tix Infinity
