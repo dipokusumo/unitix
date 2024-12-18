@@ -103,7 +103,7 @@ function DashboardPage() {
               Upcoming Events
             </h2>
             <div className="space-y-6">
-              {upcomingEvents.length > 0 ? (
+              {upcomingEvents?.length > 0 ? (
                 upcomingEvents.map((event) => {
                   const eventDate = new Date(event.dateTime);
                   const formattedDate = eventDate.toLocaleDateString("id-ID", {
@@ -157,7 +157,7 @@ function DashboardPage() {
               Rekomendasi Acara
             </h2>
             <div className="flex flex-wrap gap-6 justify-center">
-              {recommendedEvents.length > 0 ? (
+              {recommendedEvents?.length > 0 ? (
                 recommendedEvents.map((event) => (
                   <div
                     key={event._id}

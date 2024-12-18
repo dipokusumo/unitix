@@ -190,7 +190,7 @@ function EventPage() {
             <div className="flex justify-center items-center h-64">
               <LoadingSpinner />
             </div>
-          ) : filteredEvents.length > 0 ? (
+          ) : filteredEvents?.length > 0 ? (
             filteredEvents.map((event) => (
               <div
                 key={event._id}
