@@ -88,6 +88,8 @@ Script ini akan menghasilkan:
  npm run dev
  ```
 
+### Notes: pastikan untuk setup instalasi di kedua root folder project frontend & backend 
+
 ---
 
 ## API Endpoints
@@ -95,7 +97,8 @@ Script ini akan menghasilkan:
 ### Postman Collection
 
 Anda dapat mengakses dokumentasi lengkap API menggunakan link Postman berikut:
-https://www.postman.com/unitix/unitix/collection/ofxvkms/unitix?action=share&creator=35310270
+https://www.postman.com/unitix/unitix/collection/ofxvkms/unitix?action=share&creator=35310270.
+
 Catatan:
 1. Gunakan fork pada Postman Collection untuk dapat menggunakan endpoint API sesuai
 kebutuhan Anda.
