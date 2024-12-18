@@ -36,7 +36,7 @@ VITE_API_BASE_URL= # tambahkan ke endpoint api backend
 - Backend:
 ```env
 PORT=8080
-MONGODB_URI=mongodb://localhost:27017/ ( # tambahkan nama collection yang anda inginkan )
+MONGODB_URI=mongodb://localhost:27017/ # tambahkan nama collection yang anda inginkan
 JWT_SECRET= # buat jwt secret nya
 JWT_EXPIRES_IN=24h
 EMAIL_USER= # tambahkan email untuk nodemailer
