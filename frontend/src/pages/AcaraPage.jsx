@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../layout/CustomerNavbar";
 import { eventApi } from "../api/eventApi";
 import LoadingSpinner from "../component/loadingSpinner";
+import Footer from "../layout/Footer";
 
 function EventPage() {
   const [events, setEvents] = useState([]);
@@ -97,7 +98,7 @@ function EventPage() {
   };
 
   return (
-    <div className="bg-[#f0f0f0] min-h-screen">
+    <div className="flex flex-col bg-[#f0f0f0] min-h-screen">
       <Navbar />
       <div className="p-6">
         {/* Filters Section */}
@@ -251,6 +252,7 @@ function EventPage() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

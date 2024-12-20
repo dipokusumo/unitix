@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { FaChevronDown, FaRedoAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
 import Navbar from "../layout/CustomerNavbar";
 import { transactionApi } from "../api/transactionApi";
 import LoadingSpinner from "../component/loadingSpinner";
+import Footer from "../layout/Footer";
 
 const HistoryPage = () => {
   const [visibleDetails, setVisibleDetails] = useState({});
@@ -113,7 +115,7 @@ const HistoryPage = () => {
   }
 
   return (
-    <div className="bg-[#f0f0f0] min-h-screen">
+    <div className="flex flex-col bg-[#f0f0f0] min-h-screen">
       <Navbar />
       <div className="max-w-5xl mx-auto p-4 md:p-6">
         <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
@@ -121,119 +123,139 @@ const HistoryPage = () => {
         </h1>
 
         {/* Transaksi */}
-        <div className="space-y-6 max-h-[600px] overflow-y-auto scrollbar-hidden">
-          {transactions.map((transaction) => (
-            <div
-              key={transaction.transactionId}
-              className="bg-white rounded-lg shadow-md overflow-hidden"
+        {transactions.length === 0 ? (
+          // Menampilkan pesan jika tidak ada transaksi
+          <div className="flex flex-col items-center justify-center bg-white p-8 rounded-lg shadow-md text-center">
+            <h2 className="text-lg font-bold text-gray-800 mb-2">
+              Tidak ada riwayat transaksi
+            </h2>
+            <p className="text-sm text-gray-600 mb-6">
+              Anda belum melakukan transaksi apa pun. Silakan lakukan pembelian
+              tiket terlebih dahulu.
+            </p>
+            <Link
+              to="/event"
+              className="px-6 py-2 bg-[#00CCCC] text-white rounded-lg hover:bg-[#00FFFF]"
             >
-              {/* Header Section */}
-              <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                {/* Gambar Acara */}
-                <div className="h-32 md:h-40">
-                  <img
-                    src={transaction.event.posterUrl}
-                    alt={transaction.event.name}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                </div>
+              Jelajahi Acara
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {transactions.map((transaction) => (
+              <div
+                key={transaction.transactionId}
+                className="bg-white rounded-lg shadow-md"
+              >
+                {/* Header Section */}
+                <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                  {/* Gambar Acara */}
+                  <div className="h-32 md:h-40">
+                    <img
+                      src={transaction.event.posterUrl}
+                      alt={transaction.event.name}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  </div>
 
-                {/* Detail Acara */}
-                <div className="space-y-2 text-center md:text-left">
-                  <h2 className="text-lg font-bold text-gray-800">
-                    {transaction.event.name}
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    {transaction.event.location}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {new Date(transaction.event.dateTime).toLocaleDateString(
-                      "id-ID",
-                      { day: "numeric", month: "long", year: "numeric" }
-                    )}
-                  </p>
-                </div>
-
-                {/* Status */}
-                <div className="text-center space-y-2">
-                  {renderStatus(
-                    transaction.paymentStatus,
-                    transaction.transactionId,
-                    transaction.paymentLink
-                  )}
-                  <button
-                    className="flex items-center justify-center text-sm text-blue-500 hover:underline mx-auto"
-                    onClick={() => toggleDetail(transaction.transactionId)}
-                  >
-                    <span>Lihat Detail</span>
-                    <FaChevronDown className="ml-1" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Detail Section */}
-              {visibleDetails[transaction.transactionId] && (
-                <div className="p-4 bg-gray-50 border-t">
-                  <div className="space-y-2">
-                    {/* Jumlah Tiket & Total Bayar */}
-                    <p>
-                      <span className="font-semibold text-gray-700">
-                        Jumlah Tiket:
-                      </span>{" "}
-                      {transaction.quantity}
+                  {/* Detail Acara */}
+                  <div className="space-y-2 text-center md:text-left">
+                    <h2 className="text-lg font-bold text-gray-800">
+                      {transaction.event.name}
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      {transaction.event.location}
                     </p>
-                    <p>
-                      <span className="font-semibold text-gray-700">
-                        Total Bayar:
-                      </span>{" "}
-                      Rp {transaction.amount}.00
-                    </p>
-
-                    {/* Metode Pembayaran / Button Bayar */}
-                    <p>
-                      {transaction.paymentStatus === "waiting pay" ? (
-                        <a
-                          href={transaction.paymentLink}
-                          className="block text-center bg-[#00CCCC] hover:bg-[#009999] text-white font-bold py-2 px-4 rounded"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Bayar Sekarang
-                        </a>
-                      ) : (
-                        <span className="font-semibold text-gray-700">
-                          Metode Pembayaran:{" "}
-                          {transaction.paymentMethod.toUpperCase()}
-                        </span>
+                    <p className="text-sm text-gray-600">
+                      {new Date(transaction.event.dateTime).toLocaleDateString(
+                        "id-ID",
+                        { day: "numeric", month: "long", year: "numeric" }
                       )}
                     </p>
+                  </div>
 
-                    {/* Detail Tiket (Hanya jika status completed) */}
-                    {transaction.paymentStatus === "completed" &&
-                    transaction.ticketDetails
-                      ? transaction.ticketDetails.map((ticket, index) => (
-                          <div
-                            key={index}
-                            className="p-3 bg-white shadow rounded flex justify-between items-center"
-                          >
-                            <p className="text-sm font-medium">
-                              Kode Tiket: {ticket.ticketCode}
-                            </p>
-                            <img
-                              src={ticket.qrCode}
-                              alt={`QR Code for ${ticket.ticketCode}`}
-                              className="w-16 h-16 object-contain"
-                            />
-                          </div>
-                        ))
-                      : null}
+                  {/* Status */}
+                  <div className="text-center space-y-2">
+                    {renderStatus(
+                      transaction.paymentStatus,
+                      transaction.transactionId,
+                      transaction.paymentLink
+                    )}
+                    <button
+                      className="flex items-center justify-center text-sm text-blue-500 hover:underline mx-auto"
+                      onClick={() => toggleDetail(transaction.transactionId)}
+                    >
+                      <span>Lihat Detail</span>
+                      <FaChevronDown className="ml-1" />
+                    </button>
                   </div>
                 </div>
-              )}
-            </div>
-          ))}
-        </div>
+
+                {/* Detail Section */}
+                {visibleDetails[transaction.transactionId] && (
+                  <div className="p-4 bg-gray-50 border-t">
+                    <div className="space-y-2">
+                      {/* Jumlah Tiket & Total Bayar */}
+                      <p>
+                        <span className="font-semibold text-gray-700">
+                          Jumlah Tiket:
+                        </span>{" "}
+                        {transaction.quantity}
+                      </p>
+                      <p>
+                        <span className="font-semibold text-gray-700">
+                          Total Bayar:
+                        </span>{" "}
+                        Rp {transaction.amount}.00
+                      </p>
+
+                      {/* Metode Pembayaran / Button Bayar */}
+                      <p>
+                        {transaction.paymentStatus === "waiting pay" ? (
+                          <a
+                            href={transaction.paymentLink}
+                            className="block text-center bg-[#00CCCC] hover:bg-[#009999] text-white font-bold py-2 px-4 rounded"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Bayar Sekarang
+                          </a>
+                        ) : (
+                          <span className="font-semibold text-gray-700">
+                            Metode Pembayaran:{" "}
+                            {transaction.paymentMethod.toUpperCase()}
+                          </span>
+                        )}
+                      </p>
+
+                      {/* Detail Tiket (Hanya jika status completed) */}
+                      {transaction.paymentStatus === "completed" &&
+                      transaction.ticketDetails
+                        ? transaction.ticketDetails.map((ticket, index) => (
+                            <div
+                              key={index}
+                              className="p-3 bg-white shadow rounded flex justify-between items-center"
+                            >
+                              <p className="text-sm font-medium">
+                                Kode Tiket: {ticket.ticketCode}
+                              </p>
+                              <img
+                                src={ticket.qrCode}
+                                alt={`QR Code for ${ticket.ticketCode}`}
+                                className="w-16 h-16 object-contain"
+                              />
+                            </div>
+                          ))
+                        : null}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+      <Footer />
     </div>
   );
 };

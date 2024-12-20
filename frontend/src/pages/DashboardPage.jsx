@@ -6,6 +6,7 @@ import Navbar from "../layout/CustomerNavbar";
 import { eventApi } from "../api/eventApi";
 import { userApi } from "../api/userApi";
 import LoadingSpinner from "../component/loadingSpinner";
+import Footer from "../layout/Footer";
 
 function DashboardPage() {
   const [userInfo, setUserInfo] = useState(null);
@@ -51,7 +52,7 @@ function DashboardPage() {
   }, [token]);
 
   return (
-    <div className="bg-[#f0f0f0] min-h-screen">
+    <div className="flex flex-col bg-[#f0f0f0] min-h-screen">
       <Navbar />
 
       {/* Loading Spinner */}
@@ -213,6 +214,7 @@ function DashboardPage() {
           </section>
         </main>
       )}
+      <Footer />
     </div>
   );
 }

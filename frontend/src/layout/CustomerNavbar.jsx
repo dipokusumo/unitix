@@ -37,6 +37,7 @@ const Navbar = () => {
             { name: "Dashboard", path: "/" },
             { name: "Acara", path: "/event" },
             ...(token ? [{ name: "Tiketku", path: "/history" }] : []),
+            { name: "Tentang Kami", path: "/about-us" },
           ].map((item, index) => (
             <Link
               key={index}
@@ -115,6 +116,7 @@ const Navbar = () => {
           { name: "Dashboard", path: "/" },
           { name: "Acara", path: "/event" },
           ...(token ? [{ name: "Tiketku", path: "/history" }] : []),
+          { name: "Tentang Kami", path: "/about-us" },
         ].map((item, index) => (
           <Link
             key={index}
